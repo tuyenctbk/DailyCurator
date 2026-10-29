@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Centered within 66dp safe zone (21dp to 87dp) -->
+    <!-- Outer Gold Frame -->
+    <path
+        android:fillColor="#E6B860"
+        android:pathData="M24,24 h60 v60 h-60 z M30,30 h48 v48 h-48 z" />
+    <!-- Inner Landscape Painting Canvas -->
+    <path
+        android:fillColor="#D8A143"
+        android:pathData="M35,66 l10,-13.5 l7.5,9 l10,-13.5 l10.5,18 h-38 z" />
+    <!-- Sun / Moon in Masterpiece -->
+    <path
+        android:fillColor="#F4D38A"
+        android:pathData="M41,43 a6,6 0 1,0 0.01,0 z" />
+</vector>

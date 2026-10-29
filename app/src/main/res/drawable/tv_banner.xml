@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+    <!-- Rich Background Gradient -->
+    <path android:pathData="M0,0h320v180h-320z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="0"
+                android:startY="0"
+                android:endX="320"
+                android:endY="180"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#211B16" />
+                <item android:offset="1.0" android:color="#0F0E0D" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Outer Gold Border -->
+    <path
+        android:fillColor="#E5B869"
+        android:pathData="M12,12 h296 v156 h-296 z M16,16 h288 v148 h-288 z" />
+
+    <!-- Museum Pediment & Columns Accent -->
+    <path
+        android:fillColor="#D4A350"
+        android:pathData="M160,28 L80,52 H240 Z" />
+
+    <!-- Central Masterpiece Canvas Frame -->
+    <path
+        android:fillColor="#A67832"
+        android:pathData="M100,60 h120 v90 h-120 z" />
+    <path
+        android:fillColor="#1E1B19"
+        android:pathData="M104,64 h112 v82 h-112 z" />
+
+    <!-- Canvas Inner Landscape Silhouette -->
+    <path
+        android:fillColor="#E5B869"
+        android:pathData="M114,130 l24,-28 l18,20 l22,-30 l24,38 h-88 z" />
+    <path
+        android:fillColor="#F7F4EC"
+        android:pathData="M136,88 a10,10 0 1,0 0.01,0 z" />
+</vector>

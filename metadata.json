@@ -1,0 +1,6 @@
+{
+  "name": "DailyCurator",
+  "description": "Pocket Art Gallery providing daily discovery of public-domain fine art masterworks from the Met & Art Institute of Chicago, with wallpaper setter and 4K downloads.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
