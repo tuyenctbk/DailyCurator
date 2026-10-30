@@ -26,6 +26,7 @@
     <string name="reset_filters">Réinitialiser les filtres</string>
     <string name="masterpieces_available_format">%1$d chefs-d\'œuvre disponibles</string>
     <string name="historical_context">Contexte Historique et Artistique</string>
+    <string name="artist_biography">Biographie et Contexte de l\'Artiste</string>
     <string name="reset_zoom">Réinitialiser</string>
     <string name="pinch_to_inspect">Pincer pour inspecter</string>
     <string name="share_masterpiece">Partager le chef-d\'œuvre</string>
@@ -95,4 +96,36 @@
     <string name="wallpaper_success_format">Défini comme %1$s avec succès !</string>
     <string name="download_error_retrieve">Impossible de récupérer le fichier artistique original non compressé.</string>
     <string name="download_error_failed">Échec du téléchargement.</string>
+
+    <!-- Curatorial & Provenance Defaults -->
+    <string name="default_curator_note_detail">Un chef-d\'œuvre en libre accès conservé sous la tutelle publique. Célèbre pour son utilisation révolutionnaire des pigments, sa profondeur et sa résonance culturelle.</string>
+    <string name="default_curator_note_daily">Une œuvre magistrale remarquable par son travail du pinceau transcendant, son harmonie spatiale et son importance historique. Préservée en libre accès pour tous.</string>
+    <string name="default_medium">Huile sur toile</string>
+    <string name="default_dimensions">Non précisé</string>
+    <string name="default_canvas_dimensions">Dimensions de la toile principale</string>
+    <string name="default_credit">Don du domaine public</string>
+    <string name="default_museum_gift">Don musée en libre accès</string>
+    <string name="default_department">Collection permanente</string>
+    <string name="default_art_wing">Aile des Beaux-Arts</string>
+
+    <!-- Art Movements & Eras -->
+    <string name="filter_all">Tous</string>
+    <string name="filter_impressionism">Impressionnisme</string>
+    <string name="filter_post_impressionism">Postimpressionnisme</string>
+    <string name="filter_dutch_golden_age">Siècle d\'or néerlandais</string>
+    <string name="filter_ukiyo_e">Ukiyo-e</string>
+    <string name="filter_romanticism">Romantisme</string>
+    <string name="filter_modern_realism">Réalisme moderne</string>
+    <string name="filter_19th_century">XIXe siècle</string>
+    <string name="filter_17th_century">XVIIe siècle</string>
+    <string name="filter_edo_period">Époque d\'Edo</string>
+    <string name="filter_20th_century">XXe siècle</string>
+
+    <!-- Android TV & Ambient Art Frame Mode -->
+    <string name="ambient_art_frame">Cadre d\'Art Ambiant</string>
+    <string name="play_slideshow">Lancer le diaporama</string>
+    <string name="pause_slideshow">Mettre en pause le diaporama</string>
+    <string name="exit_ambient_mode">Quitter le mode ambiant</string>
+    <string name="tv_mode_active">Galerie d\'Ambiance Salon</string>
+    <string name="tv_remote_hint">Appuyez sur Gauche/Droite sur la télécommande pour changer • Centre pour pause</string>
 </resources>

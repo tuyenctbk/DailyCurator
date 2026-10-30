@@ -26,6 +26,7 @@
     <string name="reset_filters">Сбросить фильтры</string>
     <string name="masterpieces_available_format">Доступно шедевров: %1$d</string>
     <string name="historical_context">Исторический и художественный контекст</string>
+    <string name="artist_biography">Биография художника и контекст</string>
     <string name="reset_zoom">Сбросить</string>
     <string name="pinch_to_inspect">Сведите пальцы для увеличения</string>
     <string name="share_masterpiece">Поделиться шедевром</string>
@@ -95,4 +96,36 @@
     <string name="wallpaper_success_format">Успешно установлено как %1$s!</string>
     <string name="download_error_retrieve">Не удалось получить оригинальный несжатый файл картины.</string>
     <string name="download_error_failed">Ошибка скачивания.</string>
+
+    <!-- Curatorial & Provenance Defaults -->
+    <string name="default_curator_note_detail">Шедевр открытого доступа, находящийся в общественном достоянии. Знаменит революционной работой с пигментами, атмосферной глубиной и культурной значимостью.</string>
+    <string name="default_curator_note_daily">Выдающийся шедевр, демонстрирующий непревзойденное мастерство кисти, гармонию пространства и историческое значение. Сохранен в открытом доступе для всего мира.</string>
+    <string name="default_medium">Холст, масло</string>
+    <string name="default_dimensions">Не указано</string>
+    <string name="default_canvas_dimensions">Размеры оригинального холста</string>
+    <string name="default_credit">Дар в общественное достояние</string>
+    <string name="default_museum_gift">Музейный дар открытого доступа</string>
+    <string name="default_department">Постоянная коллекция</string>
+    <string name="default_art_wing">Крыло изящных искусств</string>
+
+    <!-- Art Movements & Eras -->
+    <string name="filter_all">Все</string>
+    <string name="filter_impressionism">Импрессионизм</string>
+    <string name="filter_post_impressionism">Постимпрессионизм</string>
+    <string name="filter_dutch_golden_age">Золотой век Голландии</string>
+    <string name="filter_ukiyo_e">Укиё-э</string>
+    <string name="filter_romanticism">Романтизм</string>
+    <string name="filter_modern_realism">Современный реализм</string>
+    <string name="filter_19th_century">XIX век</string>
+    <string name="filter_17th_century">XVII век</string>
+    <string name="filter_edo_period">Период Эдо</string>
+    <string name="filter_20th_century">XX век</string>
+
+    <!-- Android TV & Ambient Art Frame Mode -->
+    <string name="ambient_art_frame">Арт-рамка для гостиной</string>
+    <string name="play_slideshow">Запустить слайд-шоу</string>
+    <string name="pause_slideshow">Приостановить слайд-шоу</string>
+    <string name="exit_ambient_mode">Выйти из фонового режима</string>
+    <string name="tv_mode_active">Фоновая галерея для ТВ</string>
+    <string name="tv_remote_hint">Нажимайте Влево/Вправо на пульте для смены полотна • Центр для паузы</string>
 </resources>

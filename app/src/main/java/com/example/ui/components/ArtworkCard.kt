@@ -51,6 +51,7 @@ import com.example.ui.theme.GoldAccent
 import com.example.ui.theme.OutfitFontFamily
 import com.example.ui.theme.PlayfairFontFamily
 import com.example.ui.theme.SurfaceDark
+import com.example.ui.components.tv.tvFocusable
 
 @Composable
 fun ArtworkCard(
@@ -79,6 +80,7 @@ fun ArtworkCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
+            .tvFocusable(shape = RoundedCornerShape(16.dp), onDpadCenterClick = onSelect)
             .clip(RoundedCornerShape(16.dp))
             .border(1.dp, DividerDark, RoundedCornerShape(16.dp))
             .clickable(onClick = onSelect)
@@ -126,6 +128,7 @@ fun ArtworkCard(
                         onClick = onToggleFavorite,
                         modifier = Modifier
                             .size(40.dp)
+                            .tvFocusable(shape = CircleShape, onDpadCenterClick = onToggleFavorite)
                             .clip(CircleShape)
                             .background(Color.Black.copy(alpha = 0.55f))
                             .testTag("favorite_button_${artwork.id}")

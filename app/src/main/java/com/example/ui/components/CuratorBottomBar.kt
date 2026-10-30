@@ -28,6 +28,8 @@ import com.example.ui.theme.GalleryBlack
 import com.example.ui.theme.GoldAccent
 import com.example.ui.theme.SurfaceDark
 import com.example.ui.viewmodel.CuratorScreen
+import androidx.compose.foundation.shape.RoundedCornerShape
+import com.example.ui.components.tv.tvFocusable
 
 @Composable
 fun CuratorBottomBar(
@@ -76,7 +78,9 @@ fun CuratorBottomBar(
                     unselectedIconColor = Color.White.copy(alpha = 0.5f),
                     unselectedTextColor = Color.White.copy(alpha = 0.5f)
                 ),
-                modifier = Modifier.testTag("nav_item_${screen.name.lowercase()}")
+                modifier = Modifier
+                    .tvFocusable(shape = RoundedCornerShape(16.dp), onDpadCenterClick = { onNavigate(screen) })
+                    .testTag("nav_item_${screen.name.lowercase()}")
             )
         }
     }

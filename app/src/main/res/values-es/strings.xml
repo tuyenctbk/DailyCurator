@@ -26,6 +26,7 @@
     <string name="reset_filters">Restablecer filtros</string>
     <string name="masterpieces_available_format">%1$d obras maestras disponibles</string>
     <string name="historical_context">Contexto Histórico y Artístico</string>
+    <string name="artist_biography">Biografía y Antecedentes del Artista</string>
     <string name="reset_zoom">Restablecer</string>
     <string name="pinch_to_inspect">Pellizcar para inspeccionar</string>
     <string name="share_masterpiece">Compartir obra maestra</string>
@@ -95,4 +96,36 @@
     <string name="wallpaper_success_format">¡Establecido como %1$s con éxito!</string>
     <string name="download_error_retrieve">No se pudo recuperar el archivo de arte original sin comprimir.</string>
     <string name="download_error_failed">Error en la descarga.</string>
+
+    <!-- Curatorial & Provenance Defaults -->
+    <string name="default_curator_note_detail">Una obra maestra de acceso abierto en fideicomiso público. Célebre por su revolucionario manejo del pigmento, profundidad atmosférica y resonancia cultural.</string>
+    <string name="default_curator_note_daily">Una obra excepcional que demuestra una pincelada trascendente, armonía espacial y trascendencia histórica. Preservada en acceso abierto para el mundo.</string>
+    <string name="default_medium">Óleo sobre lienzo</string>
+    <string name="default_dimensions">No especificado</string>
+    <string name="default_canvas_dimensions">Dimensiones del lienzo maestro</string>
+    <string name="default_credit">Donación de dominio público</string>
+    <string name="default_museum_gift">Donación de acceso abierto del museo</string>
+    <string name="default_department">Colección permanente</string>
+    <string name="default_art_wing">Ala de Bellas Artes</string>
+
+    <!-- Art Movements & Eras -->
+    <string name="filter_all">Todos</string>
+    <string name="filter_impressionism">Impresionismo</string>
+    <string name="filter_post_impressionism">Postimpresionismo</string>
+    <string name="filter_dutch_golden_age">Edad de Oro holandesa</string>
+    <string name="filter_ukiyo_e">Ukiyo-e</string>
+    <string name="filter_romanticism">Romanticismo</string>
+    <string name="filter_modern_realism">Realismo moderno</string>
+    <string name="filter_19th_century">Siglo XIX</string>
+    <string name="filter_17th_century">Siglo XVII</string>
+    <string name="filter_edo_period">Periodo Edo</string>
+    <string name="filter_20th_century">Siglo XX</string>
+
+    <!-- Android TV & Ambient Art Frame Mode -->
+    <string name="ambient_art_frame">Marco de Arte Ambiental</string>
+    <string name="play_slideshow">Iniciar pase de diapositivas</string>
+    <string name="pause_slideshow">Pausar pase de diapositivas</string>
+    <string name="exit_ambient_mode">Salir del modo ambiental</string>
+    <string name="tv_mode_active">Galería Ambiental de Salón</string>
+    <string name="tv_remote_hint">Pulsa Izquierda/Derecha en el mando para cambiar de cuadro • Centro para pausar</string>
 </resources>

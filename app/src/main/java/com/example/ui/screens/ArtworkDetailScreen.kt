@@ -28,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Wallpaper
@@ -75,6 +76,7 @@ import com.example.ui.theme.ParchmentWhite
 import com.example.ui.theme.PlayfairFontFamily
 import com.example.ui.theme.SurfaceDark
 import com.example.ui.viewmodel.DownloadActionState
+import com.example.ui.components.tv.tvFocusable
 
 @Composable
 fun ArtworkDetailScreen(
@@ -121,6 +123,7 @@ fun ArtworkDetailScreen(
         artwork.bestDisplayImage
     )
     val historicalContextText = stringResource(R.string.historical_context)
+    val artistBiographyText = stringResource(R.string.artist_biography)
     val pinchToInspectText = stringResource(R.string.pinch_to_inspect)
     val cc0PublicDomainText = stringResource(R.string.cc0_public_domain)
     val setWallpaperText = stringResource(R.string.set_wallpaper)
@@ -151,35 +154,43 @@ fun ArtworkDetailScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val backDesc = stringResource(R.string.back_button_desc)
+                val favoriteDesc = stringResource(if (isFavorite) R.string.remove_favorite_desc else R.string.add_favorite_desc)
+
                 IconButton(
                     onClick = onBack,
                     modifier = Modifier
                         .size(42.dp)
+                        .tvFocusable(shape = CircleShape, onDpadCenterClick = onBack)
                         .clip(CircleShape)
                         .background(SurfaceDark)
                         .testTag("detail_back_button")
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = backDesc,
                         tint = Color.White
                     )
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    val onShare = {
+                        val sendIntent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_SUBJECT, "${artwork.title} — ${artwork.artistDisplayName}")
+                            putExtra(Intent.EXTRA_TEXT, shareText)
+                            type = "text/plain"
+                        }
+                        val shareIntent = Intent.createChooser(sendIntent, shareMasterpieceTitle)
+                        context.startActivity(shareIntent)
+                    }
+
                     // Share button
                     IconButton(
-                        onClick = {
-                            val sendIntent = Intent().apply {
-                                action = Intent.ACTION_SEND
-                                putExtra(Intent.EXTRA_TEXT, shareText)
-                                type = "text/plain"
-                            }
-                            val shareIntent = Intent.createChooser(sendIntent, shareMasterpieceTitle)
-                            context.startActivity(shareIntent)
-                        },
+                        onClick = onShare,
                         modifier = Modifier
                             .size(42.dp)
+                            .tvFocusable(shape = CircleShape, onDpadCenterClick = onShare)
                             .clip(CircleShape)
                             .background(SurfaceDark)
                             .testTag("detail_share_button")
@@ -196,13 +207,14 @@ fun ArtworkDetailScreen(
                         onClick = onToggleFavorite,
                         modifier = Modifier
                             .size(42.dp)
+                            .tvFocusable(shape = CircleShape, onDpadCenterClick = onToggleFavorite)
                             .clip(CircleShape)
                             .background(SurfaceDark)
                             .testTag("detail_favorite_button")
                     ) {
                         Icon(
                             imageVector = if (isFavorite) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                            contentDescription = "Bookmark",
+                            contentDescription = favoriteDesc,
                             tint = if (isFavorite) GoldAccent else Color.White
                         )
                     }
@@ -253,14 +265,15 @@ fun ArtworkDetailScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
+                            val resetZoomLabel = stringResource(R.string.reset_zoom)
                             Icon(
                                 imageVector = Icons.Default.RestartAlt,
-                                contentDescription = "Reset Zoom",
+                                contentDescription = resetZoomLabel,
                                 tint = GoldAccent,
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
-                                text = "${String.format("%.1fx", scale)} (${stringResource(R.string.reset_zoom)})",
+                                text = "${String.format("%.1fx", scale)} ($resetZoomLabel)",
                                 fontSize = 11.sp,
                                 fontFamily = OutfitFontFamily,
                                 color = GoldAccent,
@@ -342,6 +355,55 @@ fun ArtworkDetailScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
+                // Artist Biography Card
+                if (artwork.artistDisplayBio.isNotBlank()) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceDark),
+                        shape = RoundedCornerShape(16.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, DividerDark)
+                    ) {
+                        Column(modifier = Modifier.padding(18.dp)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = null,
+                                    tint = GoldAccent,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Text(
+                                    text = artistBiographyText,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = GoldAccent
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Text(
+                                text = artwork.artistDisplayName,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontFamily = PlayfairFontFamily,
+                                color = ParchmentWhite
+                            )
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            Text(
+                                text = artwork.artistDisplayBio,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = ParchmentWhite.copy(alpha = 0.9f),
+                                lineHeight = 22.sp
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
                 // Curatorial Story Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -358,10 +420,14 @@ fun ArtworkDetailScreen(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
+                        val defaultCuratorNote = stringResource(R.string.default_curator_note_detail)
+                        val defaultMedium = stringResource(R.string.default_medium)
+                        val defaultDimensions = stringResource(R.string.default_dimensions)
+                        val defaultCredit = stringResource(R.string.default_credit)
+                        val defaultDepartment = stringResource(R.string.default_department)
+
                         Text(
-                            text = artwork.curatorNote.ifBlank {
-                                "An open-access masterpiece held in public trust. Celebrated for its revolutionary handling of pigment, atmospheric depth, and cultural resonance."
-                            },
+                            text = artwork.curatorNote.ifBlank { defaultCuratorNote },
                             style = MaterialTheme.typography.bodyLarge,
                             color = ParchmentWhite.copy(alpha = 0.9f),
                             lineHeight = 24.sp
@@ -369,10 +435,10 @@ fun ArtworkDetailScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        ProvenanceRow(mediumText, artwork.medium.ifBlank { "Oil on canvas" })
-                        ProvenanceRow(dimensionsText, artwork.dimensions.ifBlank { "Unspecified" })
-                        ProvenanceRow(creditText, artwork.creditLine.ifBlank { "Public Domain Gift" })
-                        ProvenanceRow(departmentText, artwork.department.ifBlank { "Permanent Collection" })
+                        ProvenanceRow(mediumText, artwork.medium.ifBlank { defaultMedium })
+                        ProvenanceRow(dimensionsText, artwork.dimensions.ifBlank { defaultDimensions })
+                        ProvenanceRow(creditText, artwork.creditLine.ifBlank { defaultCredit })
+                        ProvenanceRow(departmentText, artwork.department.ifBlank { defaultDepartment })
                         ProvenanceRow(sourceText, artwork.sourceMuseum)
                     }
                 }
@@ -398,6 +464,7 @@ fun ArtworkDetailScreen(
                     modifier = Modifier
                         .weight(1.2f)
                         .height(52.dp)
+                        .tvFocusable(shape = RoundedCornerShape(14.dp), onDpadCenterClick = onOpenWallpaperModal)
                         .testTag("detail_set_wallpaper_button"),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = GoldAccent,
@@ -423,6 +490,7 @@ fun ArtworkDetailScreen(
                     modifier = Modifier
                         .weight(1f)
                         .height(52.dp)
+                        .tvFocusable(shape = RoundedCornerShape(14.dp), onDpadCenterClick = onDownload)
                         .testTag("detail_download_button"),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = ParchmentWhite

@@ -66,4 +66,86 @@ class ExampleRobolectricTest {
         isFav = repository.isFavorite(testArtwork.id).first()
         assertFalse(isFav)
     }
+
+    @Test
+    fun `wallpaper helper sets bitmap for home, lock, and both targets successfully`() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val testBitmap = android.graphics.Bitmap.createBitmap(100, 100, android.graphics.Bitmap.Config.ARGB_8888)
+
+        // Test HOME_SCREEN
+        val homeResult = com.example.data.wallpaper.WallpaperHelper.setWallpaper(
+            context,
+            testBitmap,
+            com.example.data.wallpaper.WallpaperTarget.HOME_SCREEN
+        )
+        assertTrue(homeResult.isSuccess)
+
+        // Test LOCK_SCREEN
+        val lockResult = com.example.data.wallpaper.WallpaperHelper.setWallpaper(
+            context,
+            testBitmap,
+            com.example.data.wallpaper.WallpaperTarget.LOCK_SCREEN
+        )
+        assertTrue(lockResult.isSuccess)
+
+        // Test BOTH
+        val bothResult = com.example.data.wallpaper.WallpaperHelper.setWallpaper(
+            context,
+            testBitmap,
+            com.example.data.wallpaper.WallpaperTarget.BOTH
+        )
+        assertTrue(bothResult.isSuccess)
+    }
+
+    @Test
+    fun `work manager daily scheduler executes without throwing exception`() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val config = androidx.work.Configuration.Builder()
+            .setMinimumLoggingLevel(android.util.Log.DEBUG)
+            .setExecutor(java.util.concurrent.Executors.newSingleThreadExecutor())
+            .build()
+        try {
+            androidx.work.WorkManager.initialize(context, config)
+        } catch (_: Exception) {
+            // Already initialized
+        }
+        
+        var scheduledSuccessfully = false
+        try {
+            com.example.work.DailyWorkScheduler.scheduleDailyNotifications(context)
+            scheduledSuccessfully = true
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        assertTrue(scheduledSuccessfully)
+    }
+
+    @Test
+    fun `share artwork text formatting includes title, artist, and image URL`() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val testArtwork = com.example.data.repository.CuratedMasterpieces.allMasterpieces.first()
+        val shareText = context.getString(
+            R.string.share_text_format,
+            testArtwork.title,
+            testArtwork.artistDisplayName,
+            testArtwork.objectDate,
+            testArtwork.bestDisplayImage
+        )
+
+        assertTrue(shareText.contains(testArtwork.title))
+        assertTrue(shareText.contains(testArtwork.artistDisplayName))
+        assertTrue(shareText.contains(testArtwork.bestDisplayImage))
+    }
+
+    @Test
+    fun `network client initializes cache and apis successfully`() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        com.example.data.remote.NetworkClient.init(context)
+        val client = com.example.data.remote.NetworkClient.okHttpClient
+        assertNotNull(client)
+        assertNotNull(client.cache)
+        assertNotNull(com.example.data.remote.NetworkClient.artworkApiService)
+        assertNotNull(com.example.data.remote.NetworkClient.metApi)
+        assertNotNull(com.example.data.remote.NetworkClient.articApi)
+    }
 }

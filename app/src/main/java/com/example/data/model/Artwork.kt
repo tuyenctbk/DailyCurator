@@ -18,8 +18,16 @@ data class Artwork(
     val curatorNote: String = "",
     val isPublicDomain: Boolean = true,
     val isDailyPick: Boolean = false,
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val dateDiscovered: Long = System.currentTimeMillis()
 ) {
+    // Convenient aliases matching metadata queries
+    val artist: String
+        get() = artistDisplayName
+
+    val imageUrl: String
+        get() = bestDisplayImage
+
     val bestDisplayImage: String
         get() = if (primaryImage.isNotBlank()) primaryImage else primaryImageSmall
 

@@ -38,7 +38,8 @@ enum class CuratorScreen {
     GALLERY,
     FAVORITES,
     DETAIL,
-    WALLPAPER_PREVIEW
+    WALLPAPER_PREVIEW,
+    AMBIENT_TV
 }
 
 class CuratorViewModel(

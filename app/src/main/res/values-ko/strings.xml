@@ -26,6 +26,7 @@
     <string name="reset_filters">필터 초기화</string>
     <string name="masterpieces_available_format">%1$d개의 걸작이 준비되어 있습니다</string>
     <string name="historical_context">역사적 및 예술적 배경</string>
+    <string name="artist_biography">화가 생애 및 배경</string>
     <string name="reset_zoom">초기화</string>
     <string name="pinch_to_inspect">두 손가락으로 확대하여 감상하세요</string>
     <string name="share_masterpiece">걸작 공유하기</string>
@@ -95,4 +96,36 @@
     <string name="wallpaper_success_format">%1$s(으)로 성공적으로 설정되었습니다!</string>
     <string name="download_error_retrieve">무압축 원본 작품 파일을 가져올 수 없습니다.</string>
     <string name="download_error_failed">다운로드에 실패했습니다.</string>
+
+    <!-- Curatorial & Provenance Defaults -->
+    <string name="default_curator_note_detail">공공 신탁을 통해 보존되는 오픈 액세스 세계 명작. 혁신적인 안료 기법, 공간적 깊이감 및 문화적 울림으로 세계적 찬사를 받습니다.</string>
+    <string name="default_curator_note_daily">탁월한 붓터치, 공간의 조화, 역사적 중요성을 지닌 뛰어난 걸작입니다. 전 세계의 감상을 위해 오픈 액세스로 영구 보존됩니다.</string>
+    <string name="default_medium">캔버스에 유채</string>
+    <string name="default_dimensions">명시되지 않음</string>
+    <string name="default_canvas_dimensions">마스터 캔버스 원본 규격</string>
+    <string name="default_credit">퍼블릭 도메인 기증</string>
+    <string name="default_museum_gift">미술관 오픈 액세스 기증품</string>
+    <string name="default_department">상설 컬렉션</string>
+    <string name="default_art_wing">순수 미술관</string>
+
+    <!-- Art Movements & Eras -->
+    <string name="filter_all">전체</string>
+    <string name="filter_impressionism">인상주의</string>
+    <string name="filter_post_impressionism">후기 인상주의</string>
+    <string name="filter_dutch_golden_age">네덜란드 황금기</string>
+    <string name="filter_ukiyo_e">우키요에</string>
+    <string name="filter_romanticism">낭만주의</string>
+    <string name="filter_modern_realism">현대 사실주의</string>
+    <string name="filter_19th_century">19세기</string>
+    <string name="filter_17th_century">17세기</string>
+    <string name="filter_edo_period">에도 시대</string>
+    <string name="filter_20th_century">20세기</string>
+
+    <!-- Android TV & Ambient Art Frame Mode -->
+    <string name="ambient_art_frame">거실 앰비언트 아트 프레임</string>
+    <string name="play_slideshow">슬라이드쇼 재생</string>
+    <string name="pause_slideshow">슬라이드쇼 일시정지</string>
+    <string name="exit_ambient_mode">프레임 모드 종료</string>
+    <string name="tv_mode_active">거실 앰비언트 미술관</string>
+    <string name="tv_remote_hint">리모컨 좌/우 버튼으로 명화 전환 • 중앙 버튼으로 일시정지</string>
 </resources>

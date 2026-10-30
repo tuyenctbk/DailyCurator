@@ -50,6 +50,8 @@ import com.example.ui.theme.PlayfairFontFamily
 import com.example.ui.components.donation.SupporterBadge
 import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.material3.IconButton
+import androidx.compose.foundation.shape.CircleShape
+import com.example.ui.components.tv.tvFocusable
 
 @Composable
 fun FavoritesScreen(
@@ -100,7 +102,9 @@ fun FavoritesScreen(
                 } else {
                     IconButton(
                         onClick = onOpenDonationModal,
-                        modifier = Modifier.size(36.dp)
+                        modifier = Modifier
+                            .size(36.dp)
+                            .tvFocusable(shape = CircleShape, onDpadCenterClick = onOpenDonationModal)
                     ) {
                         Icon(
                             imageVector = Icons.Default.VolunteerActivism,
@@ -173,7 +177,9 @@ fun FavoritesScreen(
                             contentColor = GalleryBlack
                         ),
                         shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.testTag("explore_from_favorites_button")
+                        modifier = Modifier
+                            .tvFocusable(shape = RoundedCornerShape(12.dp), onDpadCenterClick = onExploreArchive)
+                            .testTag("explore_from_favorites_button")
                     ) {
                         Icon(
                             imageVector = Icons.Default.Collections,

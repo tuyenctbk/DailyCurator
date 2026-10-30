@@ -26,6 +26,7 @@
     <string name="reset_filters">Filter zurücksetzen</string>
     <string name="masterpieces_available_format">%1$d Meisterwerke verfügbar</string>
     <string name="historical_context">Historischer &amp; Künstlerischer Kontext</string>
+    <string name="artist_biography">Künstlerbiografie &amp; Hintergrund</string>
     <string name="reset_zoom">Zurücksetzen</string>
     <string name="pinch_to_inspect">Zum Zoomen kneifen</string>
     <string name="share_masterpiece">Meisterwerk teilen</string>
@@ -95,4 +96,36 @@
     <string name="wallpaper_success_format">Erfolgreich als %1$s festgelegt!</string>
     <string name="download_error_retrieve">Originale unkomprimierte Kunstdatei konnte nicht abgerufen werden.</string>
     <string name="download_error_failed">Download fehlgeschlagen.</string>
+
+    <!-- Curatorial & Provenance Defaults -->
+    <string name="default_curator_note_detail">Ein frei zugängliches Meisterwerk im öffentlichen Besitz. Berühmt für seine revolutionäre Farbhandhabung, räumliche Tiefe und kulturelle Bedeutung.</string>
+    <string name="default_curator_note_daily">Ein außergewöhnliches Meisterwerk von meisterhafter Pinselführung, harmonischer Komposition und historischer Tragweite. Für die Welt frei zugänglich bewahrt.</string>
+    <string name="default_medium">Öl auf Leinwand</string>
+    <string name="default_dimensions">Nicht angegeben</string>
+    <string name="default_canvas_dimensions">Leinwand-Originalmaße</string>
+    <string name="default_credit">Gemeinfreie Schenkung</string>
+    <string name="default_museum_gift">Open-Access Museumsschenkung</string>
+    <string name="default_department">Dauerausstellung</string>
+    <string name="default_art_wing">Flügel der Bildenden Künste</string>
+
+    <!-- Art Movements & Eras -->
+    <string name="filter_all">Alle</string>
+    <string name="filter_impressionism">Impressionismus</string>
+    <string name="filter_post_impressionism">Post-Impressionismus</string>
+    <string name="filter_dutch_golden_age">Goldenes Zeitalter der Niederlande</string>
+    <string name="filter_ukiyo_e">Ukiyo-e</string>
+    <string name="filter_romanticism">Romantik</string>
+    <string name="filter_modern_realism">Moderner Realismus</string>
+    <string name="filter_19th_century">19. Jahrhundert</string>
+    <string name="filter_17th_century">17. Jahrhundert</string>
+    <string name="filter_edo_period">Edo-Zeit</string>
+    <string name="filter_20th_century">20. Jahrhundert</string>
+
+    <!-- Android TV & Ambient Art Frame Mode -->
+    <string name="ambient_art_frame">Ambienter Kunstrahmen</string>
+    <string name="play_slideshow">Diashow abspielen</string>
+    <string name="pause_slideshow">Diashow anhalten</string>
+    <string name="exit_ambient_mode">Ambienten Modus beenden</string>
+    <string name="tv_mode_active">Wohnzimmer-Ambiente-Galerie</string>
+    <string name="tv_remote_hint">Steuerkreuz Links/Rechts für Gemäldewechsel • Mitte für Pause</string>
 </resources>

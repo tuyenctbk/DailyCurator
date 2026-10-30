@@ -34,6 +34,7 @@
 
     <!-- Artwork Detail Screen -->
     <string name="historical_context">Historical &amp; Artistic Context</string>
+    <string name="artist_biography">Artist Biography &amp; Background</string>
     <string name="reset_zoom">Reset</string>
     <string name="pinch_to_inspect">Pinch to inspect</string>
     <string name="share_masterpiece">Share Masterpiece</string>
@@ -112,4 +113,36 @@
     <string name="wallpaper_success_format">Set as %1$s successfully!</string>
     <string name="download_error_retrieve">Could not retrieve original uncompressed artwork file.</string>
     <string name="download_error_failed">Download failed.</string>
+
+    <!-- Curatorial & Provenance Defaults -->
+    <string name="default_curator_note_detail">An open-access masterpiece held in public trust. Celebrated for its revolutionary handling of pigment, atmospheric depth, and cultural resonance.</string>
+    <string name="default_curator_note_daily">An exceptional masterwork demonstrating transcendent brushwork, spatial harmony, and historical significance. Preserved in open access for world appreciation.</string>
+    <string name="default_medium">Oil on canvas</string>
+    <string name="default_dimensions">Unspecified</string>
+    <string name="default_canvas_dimensions">Master canvas dimensions</string>
+    <string name="default_credit">Public Domain Gift</string>
+    <string name="default_museum_gift">Museum Open Access Gift</string>
+    <string name="default_department">Permanent Collection</string>
+    <string name="default_art_wing">Fine Art Wing</string>
+
+    <!-- Art Movements & Eras -->
+    <string name="filter_all">All</string>
+    <string name="filter_impressionism">Impressionism</string>
+    <string name="filter_post_impressionism">Post-Impressionism</string>
+    <string name="filter_dutch_golden_age">Dutch Golden Age</string>
+    <string name="filter_ukiyo_e">Ukiyo-e</string>
+    <string name="filter_romanticism">Romanticism</string>
+    <string name="filter_modern_realism">Modern Realism</string>
+    <string name="filter_19th_century">19th Century</string>
+    <string name="filter_17th_century">17th Century</string>
+    <string name="filter_edo_period">Edo Period</string>
+    <string name="filter_20th_century">20th Century</string>
+
+    <!-- Android TV & Ambient Art Frame Mode -->
+    <string name="ambient_art_frame">Ambient Art Frame</string>
+    <string name="play_slideshow">Play Slideshow</string>
+    <string name="pause_slideshow">Pause Slideshow</string>
+    <string name="exit_ambient_mode">Exit Ambient Mode</string>
+    <string name="tv_mode_active">Living Room Ambient Gallery</string>
+    <string name="tv_remote_hint">Press D-pad Left/Right to change paintings • Center to pause</string>
 </resources>

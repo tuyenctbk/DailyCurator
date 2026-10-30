@@ -44,6 +44,7 @@ import com.example.ui.components.CuratorBottomBar
 import com.example.ui.components.SplashScreen
 import com.example.ui.components.WallpaperPreviewModal
 import com.example.ui.components.donation.DonationModalDialog
+import com.example.ui.components.tv.AmbientArtFrameScreen
 import com.example.ui.screens.ArtworkDetailScreen
 import com.example.ui.screens.DailyDiscoveryScreen
 import com.example.ui.screens.FavoritesScreen
@@ -60,6 +61,7 @@ import com.example.work.DailyWorkScheduler
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.example.data.remote.NetworkClient.init(applicationContext)
         enableEdgeToEdge()
         setContent {
             DailyCuratorTheme {
@@ -199,7 +201,7 @@ fun DailyCuratorApp() {
             contentWindowInsets = WindowInsets.safeDrawing,
             snackbarHost = { SnackbarHost(snackbarHostState) },
             bottomBar = {
-                if (currentScreen != CuratorScreen.DETAIL && !showSplash) {
+                if (currentScreen != CuratorScreen.DETAIL && currentScreen != CuratorScreen.AMBIENT_TV && !showSplash) {
                     CuratorBottomBar(
                         currentScreen = currentScreen,
                         onNavigate = { screen ->
@@ -217,11 +219,11 @@ fun DailyCuratorApp() {
                 AnimatedContent(
                     targetState = currentScreen,
                     transitionSpec = {
-                        if (targetState == CuratorScreen.DETAIL) {
+                        if (targetState == CuratorScreen.DETAIL || targetState == CuratorScreen.AMBIENT_TV) {
                             (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
                                 slideOutHorizontally { width -> -width / 3 } + fadeOut()
                             )
-                        } else if (initialState == CuratorScreen.DETAIL) {
+                        } else if (initialState == CuratorScreen.DETAIL || initialState == CuratorScreen.AMBIENT_TV) {
                             (slideInHorizontally { width -> -width / 3 } + fadeIn()).togetherWith(
                                 slideOutHorizontally { width -> width } + fadeOut()
                             )
@@ -260,6 +262,10 @@ fun DailyCuratorApp() {
                                 },
                                 onDismissBanner = {
                                     viewModel.dismissBanner()
+                                },
+                                onOpenAmbientMode = {
+                                    previousScreenBeforeDetail = CuratorScreen.DAILY
+                                    viewModel.navigateTo(CuratorScreen.AMBIENT_TV)
                                 }
                             )
                         }
@@ -325,6 +331,22 @@ fun DailyCuratorApp() {
                                     }
                                 )
                             }
+                        }
+
+                        CuratorScreen.AMBIENT_TV -> {
+                            val ambientArtworks = if (favorites.isNotEmpty()) {
+                                favorites
+                            } else if (galleryArtworks.isNotEmpty()) {
+                                galleryArtworks
+                            } else {
+                                listOf(dailyArtwork)
+                            }
+                            AmbientArtFrameScreen(
+                                artworks = ambientArtworks,
+                                onExit = {
+                                    viewModel.navigateTo(previousScreenBeforeDetail)
+                                }
+                            )
                         }
 
                         CuratorScreen.WALLPAPER_PREVIEW -> Unit

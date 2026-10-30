@@ -127,9 +127,15 @@ class ExampleUnitTest {
         // Test ArtworkEntity (Favorites)
         val favoriteEntity = ArtworkEntity.fromArtwork(artwork)
         assertEquals("met-438012", favoriteEntity.id)
+        assertEquals("Katsushika Hokusai", favoriteEntity.artist)
+        assertEquals("https://images.metmuseum.org/CRDImages/as/original/DP130155.jpg", favoriteEntity.imageUrl)
+        assertTrue(favoriteEntity.dateDiscovered > 0L)
 
         val restoredFavorite = favoriteEntity.toArtwork()
         assertTrue(restoredFavorite.isFavorite)
+        assertEquals("Katsushika Hokusai", restoredFavorite.artist)
+        assertEquals("https://images.metmuseum.org/CRDImages/as/original/DP130155.jpg", restoredFavorite.imageUrl)
+        assertEquals(favoriteEntity.dateDiscovered, restoredFavorite.dateDiscovered)
     }
 
     @Test

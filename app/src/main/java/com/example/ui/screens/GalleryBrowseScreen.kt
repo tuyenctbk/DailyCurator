@@ -51,6 +51,7 @@ import com.example.ui.theme.ParchmentMuted
 import com.example.ui.theme.ParchmentWhite
 import com.example.ui.theme.PlayfairFontFamily
 import com.example.ui.theme.SurfaceDark
+import com.example.ui.components.tv.tvFocusable
 
 @Composable
 fun GalleryBrowseScreen(
@@ -303,6 +304,24 @@ fun GalleryBrowseScreen(
 }
 
 @Composable
+private fun getFilterLabel(key: String): String {
+    return when (key.lowercase()) {
+        "all" -> stringResource(R.string.filter_all)
+        "impressionism" -> stringResource(R.string.filter_impressionism)
+        "post-impressionism" -> stringResource(R.string.filter_post_impressionism)
+        "dutch golden age" -> stringResource(R.string.filter_dutch_golden_age)
+        "ukiyo-e" -> stringResource(R.string.filter_ukiyo_e)
+        "romanticism" -> stringResource(R.string.filter_romanticism)
+        "modern realism" -> stringResource(R.string.filter_modern_realism)
+        "19th century" -> stringResource(R.string.filter_19th_century)
+        "17th century" -> stringResource(R.string.filter_17th_century)
+        "edo period" -> stringResource(R.string.filter_edo_period)
+        "20th century" -> stringResource(R.string.filter_20th_century)
+        else -> key
+    }
+}
+
+@Composable
 private fun FilterPill(
     label: String,
     isSelected: Boolean,
@@ -311,6 +330,7 @@ private fun FilterPill(
 ) {
     Box(
         modifier = Modifier
+            .tvFocusable(shape = RoundedCornerShape(20.dp), onDpadCenterClick = onClick)
             .clip(RoundedCornerShape(20.dp))
             .background(
                 if (isSelected) GoldAccent else SurfaceDark
@@ -325,7 +345,7 @@ private fun FilterPill(
             .testTag("filter_${label.lowercase().replace(" ", "_")}")
     ) {
         Text(
-            text = label,
+            text = getFilterLabel(label),
             fontFamily = OutfitFontFamily,
             fontSize = 12.sp,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,

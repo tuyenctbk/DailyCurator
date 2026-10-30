@@ -70,6 +70,8 @@ import androidx.compose.material.icons.filled.VolunteerActivism
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.material.icons.filled.Tv
+import com.example.ui.components.tv.tvFocusable
 
 @Composable
 fun DailyDiscoveryScreen(
@@ -85,6 +87,7 @@ fun DailyDiscoveryScreen(
     onShuffle: () -> Unit,
     onOpenDonationModal: () -> Unit,
     onDismissBanner: () -> Unit,
+    onOpenAmbientMode: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -154,9 +157,25 @@ fun DailyDiscoveryScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                 }
 
+                // Ambient Art Frame / Living Room TV button
+                IconButton(
+                    onClick = onOpenAmbientMode,
+                    modifier = Modifier
+                        .tvFocusable(shape = CircleShape, onDpadCenterClick = onOpenAmbientMode)
+                        .size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Tv,
+                        contentDescription = stringResource(R.string.ambient_art_frame),
+                        tint = GoldAccent
+                    )
+                }
+
                 IconButton(
                     onClick = onOpenDonationModal,
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier
+                        .tvFocusable(shape = CircleShape, onDpadCenterClick = onOpenDonationModal)
+                        .size(36.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.VolunteerActivism,
@@ -168,6 +187,7 @@ fun DailyDiscoveryScreen(
                 IconButton(
                     onClick = onShuffle,
                     modifier = Modifier
+                        .tvFocusable(shape = CircleShape, onDpadCenterClick = onShuffle)
                         .clip(CircleShape)
                         .background(SurfaceDark)
                         .testTag("shuffle_daily_button")
@@ -195,6 +215,7 @@ fun DailyDiscoveryScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .tvFocusable(shape = RoundedCornerShape(20.dp), onDpadCenterClick = onInspect)
                 .clip(RoundedCornerShape(20.dp))
                 .border(2.dp, GoldAccent.copy(alpha = 0.4f), RoundedCornerShape(20.dp))
                 .clickable(onClick = onInspect)
@@ -336,6 +357,7 @@ fun DailyDiscoveryScreen(
                 modifier = Modifier
                     .weight(1f)
                     .height(50.dp)
+                    .tvFocusable(shape = RoundedCornerShape(12.dp), onDpadCenterClick = onOpenWallpaperModal)
                     .testTag("daily_set_wallpaper_button"),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = GoldAccent,
@@ -361,6 +383,7 @@ fun DailyDiscoveryScreen(
                 modifier = Modifier
                     .weight(1f)
                     .height(50.dp)
+                    .tvFocusable(shape = RoundedCornerShape(12.dp), onDpadCenterClick = onDownload)
                     .testTag("daily_download_button"),
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = ParchmentWhite
@@ -394,6 +417,7 @@ fun DailyDiscoveryScreen(
                 onClick = onToggleFavorite,
                 modifier = Modifier
                     .size(50.dp)
+                    .tvFocusable(shape = RoundedCornerShape(12.dp), onDpadCenterClick = onToggleFavorite)
                     .clip(RoundedCornerShape(12.dp))
                     .background(SurfaceDark)
                     .border(1.dp, DividerDark, RoundedCornerShape(12.dp))
@@ -401,7 +425,7 @@ fun DailyDiscoveryScreen(
             ) {
                 Icon(
                     imageVector = if (isFavorite) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                    contentDescription = "Bookmark",
+                    contentDescription = stringResource(if (isFavorite) R.string.remove_favorite_desc else R.string.add_favorite_desc),
                     tint = if (isFavorite) GoldAccent else Color.White
                 )
             }
@@ -425,10 +449,14 @@ fun DailyDiscoveryScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                val defaultCuratorNote = stringResource(R.string.default_curator_note_daily)
+                val defaultMedium = stringResource(R.string.default_medium)
+                val defaultCanvasDimensions = stringResource(R.string.default_canvas_dimensions)
+                val defaultMuseumGift = stringResource(R.string.default_museum_gift)
+                val defaultArtWing = stringResource(R.string.default_art_wing)
+
                 Text(
-                    text = artwork.curatorNote.ifBlank {
-                        "An exceptional masterwork demonstrating transcendent brushwork, spatial harmony, and historical significance. Preserved in open access for world appreciation."
-                    },
+                    text = artwork.curatorNote.ifBlank { defaultCuratorNote },
                     style = MaterialTheme.typography.bodyLarge,
                     color = ParchmentWhite.copy(alpha = 0.9f),
                     lineHeight = 24.sp
@@ -437,10 +465,10 @@ fun DailyDiscoveryScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Technical Provenance
-                ProvenanceRow(mediumText, artwork.medium.ifBlank { "Oil on canvas" })
-                ProvenanceRow(dimensionsText, artwork.dimensions.ifBlank { "Master canvas dimensions" })
-                ProvenanceRow(creditText, artwork.creditLine.ifBlank { "Museum Open Access Gift" })
-                ProvenanceRow(departmentText, artwork.department.ifBlank { "Fine Art Wing" })
+                ProvenanceRow(mediumText, artwork.medium.ifBlank { defaultMedium })
+                ProvenanceRow(dimensionsText, artwork.dimensions.ifBlank { defaultCanvasDimensions })
+                ProvenanceRow(creditText, artwork.creditLine.ifBlank { defaultMuseumGift })
+                ProvenanceRow(departmentText, artwork.department.ifBlank { defaultArtWing })
                 ProvenanceRow(sourceText, artwork.sourceMuseum)
             }
         }

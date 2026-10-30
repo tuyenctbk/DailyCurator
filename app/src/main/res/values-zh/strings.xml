@@ -26,6 +26,7 @@
     <string name="reset_filters">重置筛选</string>
     <string name="masterpieces_available_format">共有 %1$d 幅名作可用</string>
     <string name="historical_context">历史与艺术背景</string>
+    <string name="artist_biography">艺术家生平与背景</string>
     <string name="reset_zoom">重置</string>
     <string name="pinch_to_inspect">双指缩放以鉴赏细节</string>
     <string name="share_masterpiece">分享名作</string>
@@ -95,4 +96,36 @@
     <string name="wallpaper_success_format">已成功设置为 %1$s！</string>
     <string name="download_error_retrieve">无法获取原始未压缩的画作文件。</string>
     <string name="download_error_failed">下载失败。</string>
+
+    <!-- Curatorial & Provenance Defaults -->
+    <string name="default_curator_note_detail">由公众信托妥善保存的开放获取世界名画。以其革命性的色彩技法、深邃的空间意境与文化共鸣而闻名于世。</string>
+    <string name="default_curator_note_daily">展现卓越笔触、空间和谐与重大历史意义的杰出名作。在开放获取协议下为全世界永久珍藏。</string>
+    <string name="default_medium">布面油画</string>
+    <string name="default_dimensions">未注明</string>
+    <string name="default_canvas_dimensions">大师原画尺寸</string>
+    <string name="default_credit">公有领域捐赠</string>
+    <string name="default_museum_gift">博物馆开放获取馆藏捐赠</string>
+    <string name="default_department">永久馆藏</string>
+    <string name="default_art_wing">美术展厅</string>
+
+    <!-- Art Movements & Eras -->
+    <string name="filter_all">全部</string>
+    <string name="filter_impressionism">印象派</string>
+    <string name="filter_post_impressionism">后印象派</string>
+    <string name="filter_dutch_golden_age">荷兰黄金时代</string>
+    <string name="filter_ukiyo_e">浮世绘</string>
+    <string name="filter_romanticism">浪漫主义</string>
+    <string name="filter_modern_realism">现代现实主义</string>
+    <string name="filter_19th_century">19世纪</string>
+    <string name="filter_17th_century">17世纪</string>
+    <string name="filter_edo_period">江户时代</string>
+    <string name="filter_20th_century">20世纪</string>
+
+    <!-- Android TV & Ambient Art Frame Mode -->
+    <string name="ambient_art_frame">客厅艺术画框模式</string>
+    <string name="play_slideshow">开始幻灯片轮播</string>
+    <string name="pause_slideshow">暂停幻灯片轮播</string>
+    <string name="exit_ambient_mode">退出画框模式</string>
+    <string name="tv_mode_active">客厅艺术画廊</string>
+    <string name="tv_remote_hint">按遥控器左/右键切换名画 • 按中间键暂停</string>
 </resources>

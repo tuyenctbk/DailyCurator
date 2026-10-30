@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ArtworkDao {
-    @Query("SELECT * FROM favorite_artworks ORDER BY savedAt DESC")
+    @Query("SELECT * FROM favorite_artworks ORDER BY date_discovered DESC, saved_at DESC")
     fun getAllFavorites(): Flow<List<ArtworkEntity>>
 
     @Query("SELECT EXISTS(SELECT 1 FROM favorite_artworks WHERE id = :id)")
@@ -22,4 +22,7 @@ interface ArtworkDao {
 
     @Query("DELETE FROM favorite_artworks WHERE id = :id")
     suspend fun deleteFavoriteById(id: String)
+
+    @Query("SELECT COUNT(*) FROM favorite_artworks")
+    suspend fun getFavoritesCount(): Int
 }
