@@ -41,9 +41,7 @@ fun CuratorBottomBar(
     val salonLabel = stringResource(R.string.nav_salon)
 
     NavigationBar(
-        modifier = Modifier
-            .windowInsetsPadding(WindowInsets.navigationBars)
-            .testTag("curator_bottom_nav_bar"),
+        modifier = Modifier.testTag("curator_bottom_nav_bar"),
         containerColor = GalleryBlack,
         tonalElevation = 8.dp
     ) {

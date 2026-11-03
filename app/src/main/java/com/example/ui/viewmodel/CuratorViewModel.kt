@@ -5,19 +5,27 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.data.engagement.EngagementManager
 import com.example.data.model.Artwork
 import com.example.data.repository.CuratorRepository
 import com.example.data.wallpaper.WallpaperHelper
 import com.example.data.wallpaper.WallpaperTarget
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.example.R
+
+sealed interface EngagementUiEvent {
+    data object RequestInAppReview : EngagementUiEvent
+}
 
 sealed class WallpaperActionState {
     object Idle : WallpaperActionState()
@@ -95,23 +103,31 @@ class CuratorViewModel(
     private val _isSupporter = MutableStateFlow(false)
     val isSupporter: StateFlow<Boolean> = _isSupporter.asStateFlow()
 
-    private var donationManager: com.example.data.donation.DonationManager? = null
+    private val _engagementEvents = MutableSharedFlow<EngagementUiEvent>(extraBufferCapacity = 1)
+    val engagementEvents: SharedFlow<EngagementUiEvent> = _engagementEvents.asSharedFlow()
+
+    private var engagementManager: EngagementManager? = null
     private var searchJob: Job? = null
 
     init {
         performSearch()
     }
 
-    fun initDonationManager(context: Context) {
-        val manager = com.example.data.donation.DonationManager.getInstance(context)
-        donationManager = manager
+    /**
+     * Initializes the unified engagement engine.
+     * GUARANTEE: Never triggers any prompt or modal on app launch.
+     */
+    fun initEngagementManager(context: Context) {
+        val manager = EngagementManager.getInstance(context)
+        engagementManager = manager
         _isSupporter.value = manager.isSupporter.value
         _shouldShowBanner.value = manager.shouldShowBanner()
+        // No auto-prompts on launch!
+    }
 
-        if (manager.shouldShowAutoPrompt()) {
-            _showDonationModal.value = true
-            manager.recordAutoPromptShown()
-        }
+    // Backwards-compatible alias
+    fun initDonationManager(context: Context) {
+        initEngagementManager(context)
     }
 
     fun openDonationModal() {
@@ -120,29 +136,42 @@ class CuratorViewModel(
 
     fun closeDonationModal() {
         _showDonationModal.value = false
+        engagementManager?.dismissDonationModal()
     }
 
     fun dismissBanner() {
-        donationManager?.dismissBanner()
+        engagementManager?.dismissBanner()
         _shouldShowBanner.value = false
     }
 
+    /**
+     * Called strictly after high-value user milestones (4K wallpaper applied or artwork saved).
+     * Dispatches coordinated engagement actions based on strict anti-fatigue eligibility rules.
+     */
     fun recordSuccessfulOperation() {
-        donationManager?.recordSuccessfulOperation()
-        donationManager?.let { manager ->
+        engagementManager?.let { manager ->
+            val recommendation = manager.recordSuccessfulOperation()
             _shouldShowBanner.value = manager.shouldShowBanner()
-            if (manager.shouldShowAutoPrompt()) {
-                _showDonationModal.value = true
-                manager.recordAutoPromptShown()
+
+            when (recommendation) {
+                EngagementManager.PromptRecommendation.REQUEST_RATING -> {
+                    _engagementEvents.tryEmit(EngagementUiEvent.RequestInAppReview)
+                }
+                EngagementManager.PromptRecommendation.SHOW_DONATION_MODAL -> {
+                    _showDonationModal.value = true
+                }
+                EngagementManager.PromptRecommendation.NONE -> {
+                    // Respect user peace and focus
+                }
             }
         }
     }
 
     fun markAsSupporter() {
-        donationManager?.markAsSupporter()
+        engagementManager?.markAsSupporter()
         _isSupporter.value = true
         _shouldShowBanner.value = false
-        _showDonationModal.value = false
+        // Keep modal visible so user sees the celebratory Patron Thank-You card
     }
 
     fun navigateTo(screen: CuratorScreen) {

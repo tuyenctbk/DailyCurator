@@ -60,12 +60,12 @@ data class ArticArtworkData(
 
         val artistName = artistTitle?.takeIf { it.isNotBlank() }
             ?: artistDisplay?.substringBefore("\n")?.trim()
-            ?: "Unknown Artist"
+            ?: ""
 
         val movementStr = styleTitle ?: classificationTitle ?: departmentTitle ?: "Fine Art"
 
         val note = buildString {
-            append("Preserved in the public domain collection of the Art Institute of Chicago (${departmentTitle ?: "Permanent Gallery"}).")
+            append("Preserved in the public domain collection of the Art Institute of Chicago.")
             if (!placeOfOrigin.isNullOrBlank()) append(" Origin: $placeOfOrigin.")
             if (!styleTitle.isNullOrBlank()) append(" Style: $styleTitle.")
             if (!mediumDisplay.isNullOrBlank()) append(" Medium: $mediumDisplay.")
@@ -73,14 +73,14 @@ data class ArticArtworkData(
 
         return Artwork(
             id = "artic-${id ?: 0}",
-            title = title?.ifBlank { "Untitled" } ?: "Untitled",
+            title = title ?: "",
             artistDisplayName = artistName,
             artistDisplayBio = artistDisplay ?: "",
             objectDate = dateDisplay ?: "",
             medium = mediumDisplay ?: "",
             dimensions = dimensions ?: "",
             creditLine = creditLine ?: "",
-            department = departmentTitle ?: "Arts of the World",
+            department = departmentTitle ?: "",
             movement = movementStr,
             era = dateDisplay ?: "",
             primaryImage = fullUrl,

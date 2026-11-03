@@ -65,7 +65,7 @@ data class MetObjectResponse(
         val movementStr = period ?: culture ?: department ?: "Metropolitan Collection"
 
         val note = buildString {
-            append("An open-access public domain masterwork from The Metropolitan Museum of Art (${department ?: "Permanent Collection"}).")
+            append("An open-access public domain masterwork from The Metropolitan Museum of Art.")
             if (!culture.isNullOrBlank()) append(" Culture: $culture.")
             if (!period.isNullOrBlank()) append(" Period: $period.")
             if (!medium.isNullOrBlank()) append(" Rendered in $medium.")
@@ -74,14 +74,14 @@ data class MetObjectResponse(
 
         return Artwork(
             id = "met-$objectID",
-            title = title?.ifBlank { "Untitled" } ?: "Untitled",
-            artistDisplayName = artistDisplayName?.ifBlank { "Unknown Artist" } ?: "Unknown Artist",
+            title = title ?: "",
+            artistDisplayName = artistDisplayName ?: "",
             artistDisplayBio = artistBioStr,
             objectDate = objectDate ?: "",
             medium = medium ?: "",
             dimensions = dimensions ?: "",
             creditLine = creditLine ?: "",
-            department = department ?: "European Paintings",
+            department = department ?: "",
             movement = movementStr,
             era = period ?: "",
             primaryImage = displayImg,

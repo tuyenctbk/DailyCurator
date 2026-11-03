@@ -1,18 +1,108 @@
-*.iml
-.gradle
-.kotlin
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+# =========================================================================
+# Gradle & Build Outputs
+# =========================================================================
+.gradle/
+build/
+**/build/
+out/
+target/
+buildOutputCleanup/
+
+# =========================================================================
+# Android & Kotlin Artifacts
+# =========================================================================
+.kotlin/
+captures/
+.externalNativeBuild/
+.cxx/
+cmake/
+
+# Compiled Java & Dalvik binaries
+*.class
+*.dex
+
+# Android Application & Bundle packages
+*.apk
+*.ap_
+*.aab
+
+# Memory & Profiler dumps
+*.hprof
+
+# =========================================================================
+# Signing, Keys, Credentials & Local Config (SECURITY CRITICAL)
+# =========================================================================
+*.jks
+*.keystore
+*.key
+*.p12
+*.pfx
+*.pem
+*.pk8
 local.properties
+secrets.properties
+signing.properties
+*.private.*
+google-services.json
+
+# Environment Secrets
 .env
-debug.keystore
+.env.local
+.env.*.local
+!.env.example
+
+# =========================================================================
+# IDEs & Text Editors
+# =========================================================================
+# Android Studio / IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Miscellaneous editors & temp files
+*~
+*.swp
+*.swo
+*.bak
+
+# =========================================================================
+# Operating System Files
+# =========================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# =========================================================================
+# Diagnostics, Logs & Test Captures
+# =========================================================================
+*.log
+hs_err_pid*
+replay_pid*
+/screenshots/
+
+# =========================================================================
+# Explicit Tooling & Store Asset Inclusions (Whitelisting)
+# =========================================================================
+!gradle/wrapper/gradle-wrapper.jar
+!gradlew
+!gradlew.bat
+!store_assets/
+!store_assets/**

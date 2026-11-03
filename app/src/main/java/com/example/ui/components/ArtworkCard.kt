@@ -170,7 +170,7 @@ fun ArtworkCard(
                     .padding(14.dp)
             ) {
                 Text(
-                    text = artwork.title,
+                    text = artwork.title.ifBlank { stringResource(R.string.untitled) },
                     style = MaterialTheme.typography.titleLarge,
                     fontFamily = PlayfairFontFamily,
                     fontWeight = FontWeight.SemiBold,
@@ -187,7 +187,7 @@ fun ArtworkCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = artwork.artistDisplayName,
+                        text = artwork.artistDisplayName.ifBlank { stringResource(R.string.unknown_artist) },
                         style = MaterialTheme.typography.bodyMedium,
                         fontFamily = OutfitFontFamily,
                         color = Color.White.copy(alpha = 0.8f),

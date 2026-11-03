@@ -17,8 +17,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,12 +54,14 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.R
 import com.example.data.model.Artwork
 import com.example.ui.theme.GalleryBlack
@@ -155,13 +159,17 @@ fun AmbientArtFrameScreen(
             }
     ) {
         // Fullscreen Canvas Artwork with smooth Crossfade
+        val context = LocalContext.current
         Crossfade(
             targetState = currentArtwork,
             animationSpec = tween(durationMillis = 1500),
             label = "AmbientArtworkCrossfade"
         ) { artwork ->
             AsyncImage(
-                model = artwork.bestDisplayImage,
+                model = ImageRequest.Builder(context)
+                    .data(artwork.bestDisplayImage)
+                    .crossfade(true)
+                    .build(),
                 contentDescription = artwork.title,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
@@ -182,10 +190,11 @@ fun AmbientArtFrameScreen(
                     .fillMaxWidth()
                     .background(
                         Brush.verticalGradient(
-                            colors = listOf(Color.Black.copy(alpha = 0.8f), Color.Transparent)
+                            colors = listOf(Color.Black.copy(alpha = 0.85f), Color.Transparent)
                         )
                     )
-                    .padding(horizontal = 28.dp, vertical = 20.dp),
+                    .statusBarsPadding()
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -277,10 +286,11 @@ fun AmbientArtFrameScreen(
                     .fillMaxWidth()
                     .background(
                         Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.85f))
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.88f))
                         )
                     )
-                    .padding(horizontal = 32.dp, vertical = 24.dp),
+                    .navigationBarsPadding()
+                    .padding(horizontal = 24.dp, vertical = 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Card(
@@ -295,7 +305,7 @@ fun AmbientArtFrameScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = currentArtwork.title,
+                            text = currentArtwork.title.ifBlank { stringResource(R.string.untitled) },
                             fontFamily = PlayfairFontFamily,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
@@ -309,7 +319,7 @@ fun AmbientArtFrameScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = currentArtwork.artistDisplayName,
+                                text = currentArtwork.artistDisplayName.ifBlank { stringResource(R.string.unknown_artist) },
                                 fontFamily = OutfitFontFamily,
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Medium,
@@ -318,15 +328,21 @@ fun AmbientArtFrameScreen(
 
                             if (currentArtwork.objectDate.isNotBlank()) {
                                 Text(
-                                    text = "•  ${currentArtwork.objectDate}",
+                                    text = stringResource(R.string.bullet_format, currentArtwork.objectDate),
                                     fontFamily = OutfitFontFamily,
                                     fontSize = 13.sp,
                                     color = ParchmentMuted
                                 )
                             }
 
+                            val localizedMuseum = if (currentArtwork.sourceMuseum.contains("Chicago", ignoreCase = true)) {
+                                stringResource(R.string.art_institute)
+                            } else {
+                                stringResource(R.string.met_museum)
+                            }
+
                             Text(
-                                text = "•  ${currentArtwork.sourceMuseum}",
+                                text = stringResource(R.string.bullet_format, localizedMuseum),
                                 fontFamily = OutfitFontFamily,
                                 fontSize = 13.sp,
                                 color = ParchmentMuted

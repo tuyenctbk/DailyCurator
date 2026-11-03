@@ -24,7 +24,7 @@ abstract class DailyCuratorDatabase : RoomDatabase() {
                     context.applicationContext,
                     DailyCuratorDatabase::class.java,
                     "daily_curator.db"
-                ).fallbackToDestructiveMigration().build()
+                ).fallbackToDestructiveMigration(dropAllTables = true).build()
                 INSTANCE = instance
                 instance
             }

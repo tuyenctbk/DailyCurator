@@ -3,6 +3,9 @@ package com.example.ui.screens
 import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,14 +14,17 @@ import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -55,6 +61,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -65,6 +72,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.R
 import com.example.data.model.Artwork
 import com.example.ui.theme.DividerDark
@@ -100,6 +108,15 @@ fun ArtworkDetailScreen(
     // Zoom and pan state
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
+
+    val favScale by animateFloatAsState(
+        targetValue = if (isFavorite) 1.25f else 1.0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "detail_favorite_scale"
+    )
 
     val transformState = rememberTransformableState { zoomChange, offsetChange, _ ->
         scale = (scale * zoomChange).coerceIn(1f, 4.5f)
@@ -144,83 +161,8 @@ fun ArtworkDetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(bottom = 90.dp)
+                .padding(bottom = 120.dp)
         ) {
-            // Top App Bar
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val backDesc = stringResource(R.string.back_button_desc)
-                val favoriteDesc = stringResource(if (isFavorite) R.string.remove_favorite_desc else R.string.add_favorite_desc)
-
-                IconButton(
-                    onClick = onBack,
-                    modifier = Modifier
-                        .size(42.dp)
-                        .tvFocusable(shape = CircleShape, onDpadCenterClick = onBack)
-                        .clip(CircleShape)
-                        .background(SurfaceDark)
-                        .testTag("detail_back_button")
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = backDesc,
-                        tint = Color.White
-                    )
-                }
-
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    val onShare = {
-                        val sendIntent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            putExtra(Intent.EXTRA_SUBJECT, "${artwork.title} — ${artwork.artistDisplayName}")
-                            putExtra(Intent.EXTRA_TEXT, shareText)
-                            type = "text/plain"
-                        }
-                        val shareIntent = Intent.createChooser(sendIntent, shareMasterpieceTitle)
-                        context.startActivity(shareIntent)
-                    }
-
-                    // Share button
-                    IconButton(
-                        onClick = onShare,
-                        modifier = Modifier
-                            .size(42.dp)
-                            .tvFocusable(shape = CircleShape, onDpadCenterClick = onShare)
-                            .clip(CircleShape)
-                            .background(SurfaceDark)
-                            .testTag("detail_share_button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Share,
-                            contentDescription = shareMasterpieceTitle,
-                            tint = Color.White
-                        )
-                    }
-
-                    // Bookmark toggle
-                    IconButton(
-                        onClick = onToggleFavorite,
-                        modifier = Modifier
-                            .size(42.dp)
-                            .tvFocusable(shape = CircleShape, onDpadCenterClick = onToggleFavorite)
-                            .clip(CircleShape)
-                            .background(SurfaceDark)
-                            .testTag("detail_favorite_button")
-                    ) {
-                        Icon(
-                            imageVector = if (isFavorite) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                            contentDescription = favoriteDesc,
-                            tint = if (isFavorite) GoldAccent else Color.White
-                        )
-                    }
-                }
-            }
-
             // Interactive Zoomable Masterpiece Canvas
             Box(
                 modifier = Modifier
@@ -233,7 +175,10 @@ fun ArtworkDetailScreen(
                 contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
-                    model = artwork.bestDisplayImage,
+                    model = ImageRequest.Builder(context)
+                        .data(artwork.bestDisplayImage)
+                        .crossfade(true)
+                        .build(),
                     contentDescription = artwork.title,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
@@ -266,6 +211,7 @@ fun ArtworkDetailScreen(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             val resetZoomLabel = stringResource(R.string.reset_zoom)
+                            val scaleFormatted = String.format(java.util.Locale.getDefault(), "%.1fx", scale)
                             Icon(
                                 imageVector = Icons.Default.RestartAlt,
                                 contentDescription = resetZoomLabel,
@@ -273,7 +219,7 @@ fun ArtworkDetailScreen(
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
-                                text = "${String.format("%.1fx", scale)} ($resetZoomLabel)",
+                                text = stringResource(R.string.zoom_scale_format, scaleFormatted, resetZoomLabel),
                                 fontSize = 11.sp,
                                 fontFamily = OutfitFontFamily,
                                 color = GoldAccent,
@@ -317,7 +263,7 @@ fun ArtworkDetailScreen(
             // Metadata & Analysis Details
             Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                 Text(
-                    text = artwork.title,
+                    text = artwork.title.ifBlank { stringResource(R.string.untitled) },
                     style = MaterialTheme.typography.displayMedium,
                     color = ParchmentWhite
                 )
@@ -325,7 +271,7 @@ fun ArtworkDetailScreen(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = artwork.artistDisplayName,
+                    text = artwork.artistDisplayName.ifBlank { stringResource(R.string.unknown_artist) },
                     style = MaterialTheme.typography.headlineMedium,
                     fontFamily = PlayfairFontFamily,
                     color = GoldAccent
@@ -384,7 +330,7 @@ fun ArtworkDetailScreen(
                             Spacer(modifier = Modifier.height(10.dp))
 
                             Text(
-                                text = artwork.artistDisplayName,
+                                text = artwork.artistDisplayName.ifBlank { stringResource(R.string.unknown_artist) },
                                 style = MaterialTheme.typography.titleMedium,
                                 fontFamily = PlayfairFontFamily,
                                 color = ParchmentWhite
@@ -439,8 +385,106 @@ fun ArtworkDetailScreen(
                         ProvenanceRow(dimensionsText, artwork.dimensions.ifBlank { defaultDimensions })
                         ProvenanceRow(creditText, artwork.creditLine.ifBlank { defaultCredit })
                         ProvenanceRow(departmentText, artwork.department.ifBlank { defaultDepartment })
-                        ProvenanceRow(sourceText, artwork.sourceMuseum)
+                        val localizedSource = if (artwork.sourceMuseum.contains("Chicago", ignoreCase = true)) {
+                            stringResource(R.string.art_institute)
+                        } else {
+                            stringResource(R.string.met_museum)
+                        }
+                        ProvenanceRow(sourceText, localizedSource)
                     }
+                }
+            }
+        }
+
+        // Pinned Top App Bar with Atmospheric Gradient
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color.Black.copy(alpha = 0.85f),
+                            Color.Black.copy(alpha = 0.4f),
+                            Color.Transparent
+                        )
+                    )
+                )
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val backDesc = stringResource(R.string.back_button_desc)
+            val favoriteDesc = stringResource(if (isFavorite) R.string.remove_favorite_desc else R.string.add_favorite_desc)
+
+            IconButton(
+                onClick = onBack,
+                modifier = Modifier
+                    .size(42.dp)
+                    .tvFocusable(shape = CircleShape, onDpadCenterClick = onBack)
+                    .clip(CircleShape)
+                    .background(Color.Black.copy(alpha = 0.6f))
+                    .border(1.dp, Color.White.copy(alpha = 0.15f), CircleShape)
+                    .testTag("detail_back_button")
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = backDesc,
+                    tint = Color.White
+                )
+            }
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                val onShare = {
+                    val sendIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        val shareTitle = artwork.title.ifBlank { context.getString(R.string.untitled) }
+                        val shareArtist = artwork.artistDisplayName.ifBlank { context.getString(R.string.unknown_artist) }
+                        putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_subject_format, shareTitle, shareArtist))
+                        putExtra(Intent.EXTRA_TEXT, shareText)
+                        type = "text/plain"
+                    }
+                    val shareIntent = Intent.createChooser(sendIntent, shareMasterpieceTitle)
+                    context.startActivity(shareIntent)
+                }
+
+                // Share button
+                IconButton(
+                    onClick = onShare,
+                    modifier = Modifier
+                        .size(42.dp)
+                        .tvFocusable(shape = CircleShape, onDpadCenterClick = onShare)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.6f))
+                        .border(1.dp, Color.White.copy(alpha = 0.15f), CircleShape)
+                        .testTag("detail_share_button")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = shareMasterpieceTitle,
+                        tint = Color.White
+                    )
+                }
+
+                // Bookmark toggle with animated spring bounce
+                IconButton(
+                    onClick = onToggleFavorite,
+                    modifier = Modifier
+                        .size(42.dp)
+                        .tvFocusable(shape = CircleShape, onDpadCenterClick = onToggleFavorite)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.6f))
+                        .border(1.dp, Color.White.copy(alpha = 0.15f), CircleShape)
+                        .testTag("detail_favorite_button")
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
+                        contentDescription = favoriteDesc,
+                        tint = if (isFavorite) GoldAccent else Color.White,
+                        modifier = Modifier
+                            .size(20.dp)
+                            .graphicsLayer(scaleX = favScale, scaleY = favScale)
+                    )
                 }
             }
         }
@@ -450,22 +494,24 @@ fun ArtworkDetailScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth(),
-            color = GalleryBlack.copy(alpha = 0.95f),
+            color = GalleryBlack.copy(alpha = 0.96f),
             tonalElevation = 8.dp
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 14.dp),
+                    .navigationBarsPadding()
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
                     onClick = onOpenWallpaperModal,
                     modifier = Modifier
-                        .weight(1.2f)
-                        .height(52.dp)
+                        .weight(1.1f)
+                        .height(50.dp)
                         .tvFocusable(shape = RoundedCornerShape(14.dp), onDpadCenterClick = onOpenWallpaperModal)
                         .testTag("detail_set_wallpaper_button"),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = GoldAccent,
                         contentColor = GalleryBlack
@@ -481,7 +527,9 @@ fun ArtworkDetailScreen(
                     Text(
                         text = setWallpaperText,
                         fontFamily = OutfitFontFamily,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp,
+                        maxLines = 1
                     )
                 }
 
@@ -489,9 +537,10 @@ fun ArtworkDetailScreen(
                     onClick = onDownload,
                     modifier = Modifier
                         .weight(1f)
-                        .height(52.dp)
+                        .height(50.dp)
                         .tvFocusable(shape = RoundedCornerShape(14.dp), onDpadCenterClick = onDownload)
                         .testTag("detail_download_button"),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = ParchmentWhite
                     ),
@@ -515,7 +564,9 @@ fun ArtworkDetailScreen(
                         Text(
                             text = save4kText,
                             fontFamily = OutfitFontFamily,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 13.sp,
+                            maxLines = 1
                         )
                     }
                 }

@@ -41,6 +41,7 @@
     <string name="explore_masterworks">Исследовать шедевры</string>
     <string name="wallpaper_preview">Предпросмотр обоев</string>
     <string name="close_preview">Закрыть предпросмотр</string>
+    <string name="close_dialog">Закрыть</string>
     <string name="lock_screen">Экран блокировки</string>
     <string name="home_screen">Главный экран</string>
     <string name="both_screens">Оба экрана</string>
@@ -128,4 +129,14 @@
     <string name="exit_ambient_mode">Выйти из фонового режима</string>
     <string name="tv_mode_active">Фоновая галерея для ТВ</string>
     <string name="tv_remote_hint">Нажимайте Влево/Вправо на пульте для смены полотна • Центр для паузы</string>
+<!-- Formats & Dynamic Tiers -->
+    <string name="tier_1_price">199 ₽</string>
+    <string name="tier_2_price">499 ₽</string>
+    <string name="tier_3_price">999 ₽</string>
+    <string name="tier_4_price">1 990 ₽</string>
+    <string name="bullet_format">•  %1$s</string>
+    <string name="zoom_scale_format">%1$s (%2$s)</string>
+    <string name="share_subject_format">%1$s — %2$s</string>
+    <string name="image_media_description">%1$s — %2$s (Сохранено через DailyCurator)</string>
 </resources>
+

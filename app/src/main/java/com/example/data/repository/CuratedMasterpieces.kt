@@ -21,7 +21,7 @@ object CuratedMasterpieces {
             primaryImageSmall = "https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg",
             sourceMuseum = "The Metropolitan Museum of Art",
             curatorNote = "Painted in June 1889 while Van Gogh was a patient at the Saint-Paul asylum in Saint-Rémy. Van Gogh regarded this sun-drenched landscape with swirling golden wheat and dark towering cypresses as one of his 'best' summer canvases, capturing the vibrating heat and passionate spiritual rhythm of Provence.",
-            isDailyPick = true
+            isDailyPick = false
         ),
         Artwork(
             id = "met-438012",

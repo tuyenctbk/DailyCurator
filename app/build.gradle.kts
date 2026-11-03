@@ -1,4 +1,12 @@
 import com.google.gms.googleservices.GoogleServicesPlugin.MissingGoogleServicesStrategy
+import java.util.Properties
+
+val localProperties = Properties().apply {
+  val localPropertiesFile = rootProject.file("local.properties")
+  if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { load(it) }
+  }
+}
 
 plugins {
   alias(libs.plugins.android.application)
@@ -26,11 +34,20 @@ android {
   // and updating Android apps in AI Studio.
   signingConfigs {
     create("release") {
-      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/my-upload-key.jks"
-      storeFile = file(keystorePath)
-      storePassword = System.getenv("STORE_PASSWORD")
-      keyAlias = "upload"
-      keyPassword = System.getenv("KEY_PASSWORD")
+      val releaseKeystore = localProperties.getProperty("RELEASE_STORE_FILE")
+        ?: localProperties.getProperty("storeFile")
+        ?: System.getenv("KEYSTORE_PATH")
+        ?: "common_release_key.jks"
+      storeFile = rootProject.file(releaseKeystore)
+      storePassword = localProperties.getProperty("RELEASE_STORE_PASSWORD")
+        ?: localProperties.getProperty("storePassword")
+        ?: System.getenv("STORE_PASSWORD")
+      keyAlias = localProperties.getProperty("RELEASE_KEY_ALIAS")
+        ?: localProperties.getProperty("keyAlias")
+        ?: System.getenv("KEY_ALIAS")
+      keyPassword = localProperties.getProperty("RELEASE_KEY_PASSWORD")
+        ?: localProperties.getProperty("keyPassword")
+        ?: System.getenv("KEY_PASSWORD")
     }
     create("debugConfig") {
       storeFile = file("${rootDir}/debug.keystore")
@@ -126,6 +143,8 @@ dependencies {
   implementation(libs.okhttp)
   implementation(libs.retrofit)
   implementation(libs.androidx.work.runtime.ktx)
+  implementation(libs.play.review.ktx)
+  implementation(libs.play.app.update.ktx)
   testImplementation(libs.androidx.compose.ui.test.junit4)
   testImplementation(libs.androidx.core)
   testImplementation(libs.androidx.junit)

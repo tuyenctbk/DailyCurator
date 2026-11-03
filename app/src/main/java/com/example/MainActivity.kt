@@ -1,17 +1,21 @@
 package com.example
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -24,8 +28,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.data.engagement.EngagementManager
 import com.example.data.local.DailyCuratorDatabase
 import com.example.data.model.Artwork
 import com.example.data.repository.CuratorRepository
@@ -55,6 +62,7 @@ import com.example.ui.viewmodel.CuratorScreen
 import com.example.ui.viewmodel.CuratorViewModel
 import com.example.ui.viewmodel.CuratorViewModelFactory
 import com.example.ui.viewmodel.DownloadActionState
+import com.example.ui.viewmodel.EngagementUiEvent
 import com.example.ui.viewmodel.WallpaperActionState
 import com.example.work.DailyWorkScheduler
 
@@ -101,10 +109,42 @@ fun DailyCuratorApp() {
     var pendingDownloadArtwork by remember { mutableStateOf<Artwork?>(null) }
     var showSplash by remember { mutableStateOf(true) }
 
-    // Initialize Donation Manager and WorkManager daily notifications
+    // Natural back navigation handling
+    BackHandler(enabled = artworkForWallpaperModal != null) {
+        artworkForWallpaperModal = null
+    }
+    BackHandler(enabled = showDonationModal) {
+        viewModel.closeDonationModal()
+    }
+    BackHandler(enabled = currentScreen == CuratorScreen.DETAIL || currentScreen == CuratorScreen.AMBIENT_TV) {
+        viewModel.navigateTo(previousScreenBeforeDetail)
+    }
+    BackHandler(enabled = currentScreen == CuratorScreen.GALLERY || currentScreen == CuratorScreen.FAVORITES) {
+        viewModel.navigateTo(CuratorScreen.DAILY)
+    }
+
+    val engagementManager = remember { EngagementManager.getInstance(context) }
+
+    // Initialize Engagement Manager and WorkManager daily notifications
     LaunchedEffect(Unit) {
-        viewModel.initDonationManager(context)
+        viewModel.initEngagementManager(context)
         DailyWorkScheduler.scheduleDailyNotifications(context)
+        (context as? Activity)?.let { activity ->
+            engagementManager.checkInAppUpdateSilently(activity)
+        }
+    }
+
+    // Handle Moments of Delight: In-App Review requests
+    LaunchedEffect(Unit) {
+        viewModel.engagementEvents.collect { event ->
+            when (event) {
+                is EngagementUiEvent.RequestInAppReview -> {
+                    (context as? Activity)?.let { activity ->
+                        engagementManager.launchInAppReviewFlow(activity)
+                    }
+                }
+            }
+        }
     }
 
     // Notification permission launcher for Android 13+ (API 33+)
@@ -177,12 +217,36 @@ fun DailyCuratorApp() {
         }
     }
 
-    // Handle Download Feedback
+    // Handle Download Feedback with Contextual Share Action (Zero Intrusive Popups)
     LaunchedEffect(downloadState) {
         when (val state = downloadState) {
             is DownloadActionState.Success -> {
                 val successMessage = context.getString(R.string.saved_success_format, state.title)
-                snackbarHostState.showSnackbar(successMessage)
+                val actionLabel = context.getString(R.string.share_masterpiece)
+                val snackbarResult = snackbarHostState.showSnackbar(
+                    message = successMessage,
+                    actionLabel = actionLabel,
+                    duration = SnackbarDuration.Short
+                )
+                if (snackbarResult == SnackbarResult.ActionPerformed) {
+                    val sendIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_SUBJECT, state.title)
+                        putExtra(
+                            Intent.EXTRA_TEXT,
+                            context.getString(
+                                R.string.share_text_format,
+                                state.title,
+                                context.getString(R.string.app_name),
+                                "",
+                                state.uri.toString()
+                            )
+                        )
+                        type = "text/plain"
+                    }
+                    val shareIntent = Intent.createChooser(sendIntent, actionLabel)
+                    context.startActivity(shareIntent)
+                }
                 viewModel.clearActionStates()
             }
             is DownloadActionState.Error -> {
@@ -201,7 +265,7 @@ fun DailyCuratorApp() {
             contentWindowInsets = WindowInsets.safeDrawing,
             snackbarHost = { SnackbarHost(snackbarHostState) },
             bottomBar = {
-                if (currentScreen != CuratorScreen.DETAIL && currentScreen != CuratorScreen.AMBIENT_TV && !showSplash) {
+                if (currentScreen != CuratorScreen.DETAIL && currentScreen != CuratorScreen.AMBIENT_TV && !showSplash && artworkForWallpaperModal == null) {
                     CuratorBottomBar(
                         currentScreen = currentScreen,
                         onNavigate = { screen ->
@@ -354,17 +418,23 @@ fun DailyCuratorApp() {
                 }
 
                 // Interactive Wallpaper Preview Modal
-                artworkForWallpaperModal?.let { artwork ->
-                    WallpaperPreviewModal(
-                        artwork = artwork,
-                        wallpaperState = wallpaperState,
-                        onDismiss = {
-                            artworkForWallpaperModal = null
-                        },
-                        onApply = { target ->
-                            viewModel.applyWallpaper(context, artwork, target)
-                        }
-                    )
+                AnimatedVisibility(
+                    visible = artworkForWallpaperModal != null,
+                    enter = fadeIn(tween(250)),
+                    exit = fadeOut(tween(200))
+                ) {
+                    artworkForWallpaperModal?.let { artwork ->
+                        WallpaperPreviewModal(
+                            artwork = artwork,
+                            wallpaperState = wallpaperState,
+                            onDismiss = {
+                                artworkForWallpaperModal = null
+                            },
+                            onApply = { target ->
+                                viewModel.applyWallpaper(context, artwork, target)
+                            }
+                        )
+                    }
                 }
                 // Donation Modal Dialog
                 if (showDonationModal) {
@@ -373,7 +443,7 @@ fun DailyCuratorApp() {
                         onDismiss = {
                             viewModel.closeDonationModal()
                         },
-                        onSimulatePlayPurchase = {
+                        onSupporterPurchase = {
                             viewModel.markAsSupporter()
                         }
                     )

@@ -15,6 +15,7 @@ import coil.request.SuccessResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
+import com.example.R
 
 enum class WallpaperTarget {
     HOME_SCREEN,
@@ -79,7 +80,10 @@ object WallpaperHelper {
         val contentValues = ContentValues().apply {
             put(MediaStore.Images.Media.DISPLAY_NAME, filename)
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-            put(MediaStore.Images.Media.DESCRIPTION, "$title by $artist - Preserved via DailyCurator")
+            put(
+                MediaStore.Images.Media.DESCRIPTION,
+                context.getString(R.string.image_media_description, title, artist)
+            )
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/DailyCurator")
                 put(MediaStore.Images.Media.IS_PENDING, 1)

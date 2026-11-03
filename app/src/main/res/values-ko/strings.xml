@@ -41,6 +41,7 @@
     <string name="explore_masterworks">걸작 탐색하기</string>
     <string name="wallpaper_preview">배경화면 미리보기</string>
     <string name="close_preview">미리보기 닫기</string>
+    <string name="close_dialog">닫기</string>
     <string name="lock_screen">잠금 화면</string>
     <string name="home_screen">홈 화면</string>
     <string name="both_screens">둘 다</string>
@@ -128,4 +129,14 @@
     <string name="exit_ambient_mode">프레임 모드 종료</string>
     <string name="tv_mode_active">거실 앰비언트 미술관</string>
     <string name="tv_remote_hint">리모컨 좌/우 버튼으로 명화 전환 • 중앙 버튼으로 일시정지</string>
+<!-- Formats & Dynamic Tiers -->
+    <string name="tier_1_price">₩2,500</string>
+    <string name="tier_2_price">₩6,500</string>
+    <string name="tier_3_price">₩13,000</string>
+    <string name="tier_4_price">₩26,000</string>
+    <string name="bullet_format">•  %1$s</string>
+    <string name="zoom_scale_format">%1$s (%2$s)</string>
+    <string name="share_subject_format">%1$s — %2$s</string>
+    <string name="image_media_description">%1$s — %2$s 작 (DailyCurator 제공)</string>
 </resources>
+

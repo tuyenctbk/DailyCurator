@@ -1,1 +1,13 @@
-/build
+# Module build directory
+/build/
+
+# ProGuard / R8 mapping and dictionary outputs
+/mapping.txt
+/seeds.txt
+/usage.txt
+/dump.txt
+
+# Packaged module outputs
+*.apk
+*.aab
+*.dex

@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.R
 import com.example.data.model.Artwork
 import com.example.data.wallpaper.WallpaperTarget
@@ -69,8 +73,10 @@ fun WallpaperPreviewModal(
     artwork: Artwork,
     wallpaperState: WallpaperActionState,
     onDismiss: () -> Unit,
-    onApply: (WallpaperTarget) -> Unit
+    onApply: (WallpaperTarget) -> Unit,
+    modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     var selectedTarget by remember { mutableStateOf(WallpaperTarget.BOTH) }
     var previewMode by remember { mutableStateOf(false) } // false = Lock screen preview, true = Home screen preview
 
@@ -89,29 +95,25 @@ fun WallpaperPreviewModal(
     val settingWallpaperText = stringResource(R.string.setting_wallpaper)
     val setAsWallpaperText = stringResource(R.string.set_as_wallpaper_btn)
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+    Surface(
+        modifier = modifier
+            .fillMaxSize()
+            .background(GalleryBlack),
+        color = GalleryBlack
     ) {
-        Surface(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(GalleryBlack),
-            color = GalleryBlack
+                .padding(horizontal = 20.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 20.dp, vertical = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
                 // Top Bar
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = wallpaperPreviewText,
                             style = MaterialTheme.typography.titleLarge,
@@ -137,21 +139,31 @@ fun WallpaperPreviewModal(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Interactive Phone Mockup Frame
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .aspectRatio(9f / 18.5f)
-                        .clip(RoundedCornerShape(32.dp))
-                        .border(3.dp, Color(0xFF3E3935), RoundedCornerShape(32.dp))
-                        .background(Color.Black),
+                        .padding(vertical = 4.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    // Artwork Background
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .aspectRatio(9f / 18.5f, matchHeightConstraintsFirst = true)
+                            .clip(RoundedCornerShape(26.dp))
+                            .border(3.dp, Color(0xFF3E3935), RoundedCornerShape(26.dp))
+                            .background(Color.Black)
+                            .clickable { previewMode = !previewMode },
+                        contentAlignment = Alignment.Center
+                    ) {
+                    // Artwork Background with Crossfade
                     AsyncImage(
-                        model = artwork.bestDisplayImage,
+                        model = ImageRequest.Builder(context)
+                            .data(artwork.bestDisplayImage)
+                            .crossfade(true)
+                            .build(),
                         contentDescription = artwork.title,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
@@ -177,14 +189,14 @@ fun WallpaperPreviewModal(
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(top = 44.dp, bottom = 24.dp),
+                                .padding(top = 36.dp, bottom = 20.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.SpaceBetween
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
                                     text = currentTime,
-                                    fontSize = 58.sp,
+                                    fontSize = 52.sp,
                                     fontFamily = OutfitFontFamily,
                                     fontWeight = FontWeight.Light,
                                     color = Color.White,
@@ -192,7 +204,7 @@ fun WallpaperPreviewModal(
                                 )
                                 Text(
                                     text = currentDate,
-                                    fontSize = 13.sp,
+                                    fontSize = 12.sp,
                                     fontFamily = OutfitFontFamily,
                                     fontWeight = FontWeight.Medium,
                                     color = Color.White.copy(alpha = 0.85f)
@@ -205,21 +217,21 @@ fun WallpaperPreviewModal(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(12.dp))
                                     .background(Color.Black.copy(alpha = 0.35f))
-                                    .padding(horizontal = 14.dp, vertical = 6.dp)
+                                    .padding(horizontal = 12.dp, vertical = 4.dp)
                             ) {
                                 Text(
-                                    text = artwork.title,
+                                    text = artwork.title.ifBlank { stringResource(R.string.untitled) },
                                     fontFamily = PlayfairFontFamily,
-                                    fontSize = 12.sp,
+                                    fontSize = 11.sp,
                                     color = Color.White,
                                     fontWeight = FontWeight.Medium,
                                     textAlign = TextAlign.Center,
                                     maxLines = 1
                                 )
                                 Text(
-                                    text = artwork.artistDisplayName,
+                                    text = artwork.artistDisplayName.ifBlank { stringResource(R.string.unknown_artist) },
                                     fontFamily = OutfitFontFamily,
-                                    fontSize = 10.sp,
+                                    fontSize = 9.sp,
                                     color = GoldAccent,
                                     textAlign = TextAlign.Center
                                 )
@@ -230,7 +242,7 @@ fun WallpaperPreviewModal(
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(top = 50.dp, bottom = 32.dp, start = 20.dp, end = 20.dp),
+                                .padding(top = 40.dp, bottom = 24.dp, start = 16.dp, end = 16.dp),
                             verticalArrangement = Arrangement.Bottom,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
@@ -238,69 +250,46 @@ fun WallpaperPreviewModal(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clip(RoundedCornerShape(20.dp))
+                                    .clip(RoundedCornerShape(18.dp))
                                     .background(Color.White.copy(alpha = 0.25f))
-                                    .padding(vertical = 10.dp),
+                                    .padding(vertical = 8.dp),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
                                 repeat(4) {
                                     Box(
                                         modifier = Modifier
-                                            .size(36.dp)
-                                            .clip(RoundedCornerShape(10.dp))
+                                            .size(32.dp)
+                                            .clip(RoundedCornerShape(8.dp))
                                             .background(Color.White.copy(alpha = 0.8f))
                                     )
                                 }
                             }
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(14.dp))
-
-                // Toggle Preview Screen type (Lock / Home)
-                Row(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(SurfaceDark)
-                        .padding(4.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
+                    // Mode Badge inside mockup
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(if (!previewMode) GoldAccent else Color.Transparent)
-                            .clickable { previewMode = false }
-                            .padding(horizontal = 16.dp, vertical = 6.dp)
+                            .align(Alignment.TopCenter)
+                            .padding(top = 10.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color.Black.copy(alpha = 0.6f))
+                            .padding(horizontal = 10.dp, vertical = 3.dp)
                     ) {
                         Text(
-                            text = lockScreenText,
+                            text = if (!previewMode) lockScreenText else homeScreenText,
                             style = MaterialTheme.typography.labelSmall,
-                            color = if (!previewMode) GalleryBlack else Color.White,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(if (previewMode) GoldAccent else Color.Transparent)
-                            .clickable { previewMode = true }
-                            .padding(horizontal = 16.dp, vertical = 6.dp)
-                    ) {
-                        Text(
-                            text = homeScreenText,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = if (previewMode) GalleryBlack else Color.White,
-                            fontWeight = FontWeight.SemiBold
+                            color = GoldAccent,
+                            fontSize = 10.sp
                         )
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-                // Target Selector Buttons (Lock, Home, Both)
-                Row(
+            // Target Selector Buttons (Lock, Home, Both)
+            Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -308,13 +297,19 @@ fun WallpaperPreviewModal(
                         label = lockScreenText,
                         isSelected = selectedTarget == WallpaperTarget.LOCK_SCREEN,
                         modifier = Modifier.weight(1f),
-                        onClick = { selectedTarget = WallpaperTarget.LOCK_SCREEN }
+                        onClick = {
+                            selectedTarget = WallpaperTarget.LOCK_SCREEN
+                            previewMode = false
+                        }
                     )
                     TargetChip(
                         label = homeScreenText,
                         isSelected = selectedTarget == WallpaperTarget.HOME_SCREEN,
                         modifier = Modifier.weight(1f),
-                        onClick = { selectedTarget = WallpaperTarget.HOME_SCREEN }
+                        onClick = {
+                            selectedTarget = WallpaperTarget.HOME_SCREEN
+                            previewMode = true
+                        }
                     )
                     TargetChip(
                         label = bothScreensText,
@@ -324,14 +319,14 @@ fun WallpaperPreviewModal(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // Confirm Button
                 Button(
                     onClick = { onApply(selectedTarget) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp)
+                        .height(50.dp)
                         .testTag("confirm_set_wallpaper_button"),
                     enabled = wallpaperState !is WallpaperActionState.InProgress,
                     colors = ButtonDefaults.buttonColors(
@@ -343,8 +338,8 @@ fun WallpaperPreviewModal(
                     if (wallpaperState is WallpaperActionState.InProgress) {
                         CircularProgressIndicator(
                             color = GalleryBlack,
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.5.dp
+                            modifier = Modifier.size(22.dp),
+                            strokeWidth = 2.dp
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(settingWallpaperText, fontWeight = FontWeight.Bold)
@@ -365,7 +360,6 @@ fun WallpaperPreviewModal(
             }
         }
     }
-}
 
 @Composable
 private fun TargetChip(

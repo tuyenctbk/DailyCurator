@@ -1,12 +1,17 @@
 package com.example.ui.screens
 
 import android.content.Context
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -39,19 +44,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.R
 import com.example.data.model.Artwork
 import com.example.ui.theme.DividerDark
@@ -90,10 +101,28 @@ fun DailyDiscoveryScreen(
     onOpenAmbientMode: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val chipsScrollState = rememberScrollState()
     val todayDateFormatted = remember {
         SimpleDateFormat("EEEE, MMMM d", Locale.getDefault()).format(Date()).uppercase()
     }
+
+    var shuffleRotation by remember { mutableFloatStateOf(0f) }
+    val animatedShuffleRotation by animateFloatAsState(
+        targetValue = shuffleRotation,
+        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        label = "shuffle_rotation"
+    )
+
+    val favScale by animateFloatAsState(
+        targetValue = if (isFavorite) 1.25f else 1.0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "daily_favorite_scale"
+    )
 
     val dailyCuratorHeader = stringResource(R.string.daily_curator_header)
     val shuffleDesc = stringResource(R.string.shuffle_content_desc)
@@ -185,9 +214,15 @@ fun DailyDiscoveryScreen(
                 }
 
                 IconButton(
-                    onClick = onShuffle,
+                    onClick = {
+                        shuffleRotation += 360f
+                        onShuffle()
+                    },
                     modifier = Modifier
-                        .tvFocusable(shape = CircleShape, onDpadCenterClick = onShuffle)
+                        .tvFocusable(shape = CircleShape, onDpadCenterClick = {
+                            shuffleRotation += 360f
+                            onShuffle()
+                        })
                         .clip(CircleShape)
                         .background(SurfaceDark)
                         .testTag("shuffle_daily_button")
@@ -195,7 +230,8 @@ fun DailyDiscoveryScreen(
                     Icon(
                         imageVector = Icons.Default.Refresh,
                         contentDescription = shuffleDesc,
-                        tint = GoldAccent
+                        tint = GoldAccent,
+                        modifier = Modifier.graphicsLayer(rotationZ = animatedShuffleRotation)
                     )
                 }
             }
@@ -228,7 +264,10 @@ fun DailyDiscoveryScreen(
                     .background(Color.Black)
             ) {
                 AsyncImage(
-                    model = artwork.bestDisplayImage,
+                    model = ImageRequest.Builder(context)
+                        .data(artwork.bestDisplayImage)
+                        .crossfade(true)
+                        .build(),
                     contentDescription = artwork.title,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
@@ -302,7 +341,7 @@ fun DailyDiscoveryScreen(
 
         // Title and Artist Info
         Text(
-            text = artwork.title,
+            text = artwork.title.ifBlank { stringResource(R.string.untitled) },
             style = MaterialTheme.typography.displayMedium,
             color = ParchmentWhite,
             modifier = Modifier.testTag("daily_artwork_title")
@@ -311,7 +350,7 @@ fun DailyDiscoveryScreen(
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = artwork.artistDisplayName,
+            text = artwork.artistDisplayName.ifBlank { stringResource(R.string.unknown_artist) },
             style = MaterialTheme.typography.headlineMedium,
             fontFamily = PlayfairFontFamily,
             color = GoldAccent
@@ -335,7 +374,9 @@ fun DailyDiscoveryScreen(
 
         // Movement & Museum Chips
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(chipsScrollState),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             InfoChip(label = artwork.movement)
@@ -359,6 +400,7 @@ fun DailyDiscoveryScreen(
                     .height(50.dp)
                     .tvFocusable(shape = RoundedCornerShape(12.dp), onDpadCenterClick = onOpenWallpaperModal)
                     .testTag("daily_set_wallpaper_button"),
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = GoldAccent,
                     contentColor = GalleryBlack
@@ -374,7 +416,9 @@ fun DailyDiscoveryScreen(
                 Text(
                     text = setWallpaperText,
                     fontFamily = OutfitFontFamily,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.sp,
+                    maxLines = 1
                 )
             }
 
@@ -385,6 +429,7 @@ fun DailyDiscoveryScreen(
                     .height(50.dp)
                     .tvFocusable(shape = RoundedCornerShape(12.dp), onDpadCenterClick = onDownload)
                     .testTag("daily_download_button"),
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = ParchmentWhite
                 ),
@@ -408,7 +453,9 @@ fun DailyDiscoveryScreen(
                     Text(
                         text = save4kText,
                         fontFamily = OutfitFontFamily,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 13.sp,
+                        maxLines = 1
                     )
                 }
             }
@@ -426,7 +473,10 @@ fun DailyDiscoveryScreen(
                 Icon(
                     imageVector = if (isFavorite) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
                     contentDescription = stringResource(if (isFavorite) R.string.remove_favorite_desc else R.string.add_favorite_desc),
-                    tint = if (isFavorite) GoldAccent else Color.White
+                    tint = if (isFavorite) GoldAccent else Color.White,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .graphicsLayer(scaleX = favScale, scaleY = favScale)
                 )
             }
         }
@@ -469,7 +519,7 @@ fun DailyDiscoveryScreen(
                 ProvenanceRow(dimensionsText, artwork.dimensions.ifBlank { defaultCanvasDimensions })
                 ProvenanceRow(creditText, artwork.creditLine.ifBlank { defaultMuseumGift })
                 ProvenanceRow(departmentText, artwork.department.ifBlank { defaultArtWing })
-                ProvenanceRow(sourceText, artwork.sourceMuseum)
+                ProvenanceRow(sourceText, museumName)
             }
         }
 

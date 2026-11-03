@@ -6,6 +6,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,18 +22,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.OpenInNew
-import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -54,6 +56,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -63,10 +66,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.R
+import com.example.ui.components.tv.tvFocusable
 import com.example.ui.theme.GalleryBlack
 import com.example.ui.theme.GalleryDark
 import com.example.ui.theme.GoldAccent
-import com.example.ui.theme.GoldMuted
 import com.example.ui.theme.OchreDark
 import com.example.ui.theme.ParchmentMuted
 import com.example.ui.theme.ParchmentWhite
@@ -75,7 +78,7 @@ import com.example.ui.theme.SurfaceContainerHighDark
 
 data class SupporterTier(
     val titleRes: Int,
-    val price: String,
+    val priceRes: Int,
     val descRes: Int
 )
 
@@ -83,7 +86,7 @@ data class SupporterTier(
 fun DonationModalDialog(
     isSupporter: Boolean,
     onDismiss: () -> Unit,
-    onSimulatePlayPurchase: () -> Unit,
+    onSupporterPurchase: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -94,10 +97,10 @@ fun DonationModalDialog(
 
     val tiers = remember {
         listOf(
-            SupporterTier(R.string.tier_1_title, "$1.99", R.string.tier_1_desc),
-            SupporterTier(R.string.tier_2_title, "$4.99", R.string.tier_2_desc),
-            SupporterTier(R.string.tier_3_title, "$9.99", R.string.tier_3_desc),
-            SupporterTier(R.string.tier_4_title, "$19.99", R.string.tier_4_desc)
+            SupporterTier(R.string.tier_1_title, R.string.tier_1_price, R.string.tier_1_desc),
+            SupporterTier(R.string.tier_2_title, R.string.tier_2_price, R.string.tier_2_desc),
+            SupporterTier(R.string.tier_3_title, R.string.tier_3_price, R.string.tier_3_desc),
+            SupporterTier(R.string.tier_4_title, R.string.tier_4_price, R.string.tier_4_desc)
         )
     }
 
@@ -112,7 +115,7 @@ fun DonationModalDialog(
         try {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             context.startActivity(intent)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             copyToClipboard(url)
         }
     }
@@ -124,8 +127,10 @@ fun DonationModalDialog(
         Card(
             modifier = modifier
                 .fillMaxWidth(0.92f)
+                .widthIn(max = 480.dp)
                 .clip(RoundedCornerShape(24.dp))
-                .border(1.dp, OchreDark, RoundedCornerShape(24.dp)),
+                .border(1.dp, OchreDark, RoundedCornerShape(24.dp))
+                .testTag("donation_modal_card"),
             colors = CardDefaults.cardColors(containerColor = GalleryDark)
         ) {
             Column(
@@ -174,11 +179,14 @@ fun DonationModalDialog(
 
                     IconButton(
                         onClick = onDismiss,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier
+                            .size(36.dp)
+                            .tvFocusable(shape = CircleShape, onDpadCenterClick = onDismiss)
+                            .testTag("donation_close_button")
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(R.string.close_preview),
+                            contentDescription = stringResource(R.string.close_dialog),
                             tint = ParchmentMuted
                         )
                     }
@@ -191,21 +199,22 @@ fun DonationModalDialog(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .border(1.dp, GoldAccent, RoundedCornerShape(16.dp)),
+                            .border(1.dp, GoldAccent, RoundedCornerShape(16.dp))
+                            .testTag("supporter_recognition_card"),
                         colors = CardDefaults.cardColors(containerColor = SurfaceContainerDark),
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         Column(
-                            modifier = Modifier.padding(18.dp),
+                            modifier = Modifier.padding(22.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = null,
                                 tint = GoldAccent,
-                                modifier = Modifier.size(48.dp)
+                                modifier = Modifier.size(52.dp)
                             )
-                            Spacer(modifier = Modifier.height(10.dp))
+                            Spacer(modifier = Modifier.height(12.dp))
                             Text(
                                 text = stringResource(R.string.thank_you_title),
                                 style = MaterialTheme.typography.titleMedium.copy(
@@ -215,13 +224,33 @@ fun DonationModalDialog(
                                 color = GoldAccent,
                                 textAlign = TextAlign.Center
                             )
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = stringResource(R.string.thank_you_body),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = ParchmentMuted,
                                 textAlign = TextAlign.Center
                             )
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Button(
+                                onClick = onDismiss,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = GoldAccent,
+                                    contentColor = GalleryBlack
+                                ),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .tvFocusable(shape = RoundedCornerShape(12.dp), onDpadCenterClick = onDismiss)
+                                    .testTag("supporter_done_button")
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.close_dialog),
+                                    style = MaterialTheme.typography.labelLarge.copy(
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                            }
                         }
                     }
                 } else {
@@ -241,6 +270,9 @@ fun DonationModalDialog(
                         Tab(
                             selected = selectedTab == 0,
                             onClick = { selectedTab = 0 },
+                            modifier = Modifier
+                                .tvFocusable(shape = RoundedCornerShape(8.dp), onDpadCenterClick = { selectedTab = 0 })
+                                .testTag("donation_tab_google"),
                             text = {
                                 Text(
                                     text = stringResource(R.string.google_pay_tab),
@@ -252,6 +284,9 @@ fun DonationModalDialog(
                         Tab(
                             selected = selectedTab == 1,
                             onClick = { selectedTab = 1 },
+                            modifier = Modifier
+                                .tvFocusable(shape = RoundedCornerShape(8.dp), onDpadCenterClick = { selectedTab = 1 })
+                                .testTag("donation_tab_paypal"),
                             text = {
                                 Text(
                                     text = stringResource(R.string.paypal_tab),
@@ -263,6 +298,9 @@ fun DonationModalDialog(
                         Tab(
                             selected = selectedTab == 2,
                             onClick = { selectedTab = 2 },
+                            modifier = Modifier
+                                .tvFocusable(shape = RoundedCornerShape(8.dp), onDpadCenterClick = { selectedTab = 2 })
+                                .testTag("donation_tab_kofi"),
                             text = {
                                 Text(
                                     text = stringResource(R.string.kofi_tab),
@@ -275,67 +313,165 @@ fun DonationModalDialog(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    when (selectedTab) {
-                        0 -> {
-                            // Method 1: Google Play In-App Purchase Tiers
-                            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                tiers.forEach { tier ->
-                                    Card(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                onSimulatePlayPurchase()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .animateContentSize()
+                    ) {
+                        Crossfade(
+                            targetState = selectedTab,
+                            animationSpec = tween(250),
+                            label = "DonationTabCrossfade"
+                        ) { tab ->
+                            when (tab) {
+                                0 -> {
+                                    // Method 1: Google Play In-App Purchase Tiers
+                                    // Single-listener pattern avoids nested clickable collisions
+                                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                        tiers.forEachIndexed { index, tier ->
+                                            val onTierSelect: () -> Unit = {
+                                                onSupporterPurchase()
                                                 Toast.makeText(
                                                     context,
                                                     context.getString(R.string.thank_you_toast),
                                                     Toast.LENGTH_LONG
                                                 ).show()
                                             }
-                                            .border(1.dp, OchreDark.copy(alpha = 0.4f), RoundedCornerShape(12.dp)),
-                                        colors = CardDefaults.cardColors(containerColor = SurfaceContainerDark),
-                                        shape = RoundedCornerShape(12.dp)
+
+                                            Card(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .clip(RoundedCornerShape(12.dp))
+                                                    .border(1.dp, OchreDark.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                                                    .clickable(onClick = onTierSelect)
+                                                    .tvFocusable(
+                                                        shape = RoundedCornerShape(12.dp),
+                                                        onDpadCenterClick = onTierSelect
+                                                    )
+                                                    .testTag("donation_tier_card_$index"),
+                                                colors = CardDefaults.cardColors(containerColor = SurfaceContainerDark),
+                                                shape = RoundedCornerShape(12.dp)
+                                            ) {
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .padding(14.dp),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Column(modifier = Modifier.weight(1f)) {
+                                                        Text(
+                                                            text = stringResource(tier.titleRes),
+                                                            style = MaterialTheme.typography.titleSmall.copy(
+                                                                fontFamily = FontFamily.Serif,
+                                                                fontWeight = FontWeight.Bold
+                                                            ),
+                                                            color = ParchmentWhite
+                                                        )
+                                                        Text(
+                                                            text = stringResource(tier.descRes),
+                                                            style = MaterialTheme.typography.bodySmall,
+                                                            color = ParchmentMuted
+                                                        )
+                                                    }
+
+                                                    Spacer(modifier = Modifier.width(12.dp))
+
+                                                    // Visual price badge without nested clickable conflict
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .clip(RoundedCornerShape(8.dp))
+                                                            .background(GoldAccent)
+                                                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                                                        contentAlignment = Alignment.Center
+                                                    ) {
+                                                        Text(
+                                                            text = stringResource(tier.priceRes),
+                                                            style = MaterialTheme.typography.labelLarge.copy(
+                                                                fontWeight = FontWeight.Bold
+                                                            ),
+                                                            color = GalleryBlack
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                1 -> {
+                                    // Method 2: PayPal & Live QR Code
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier.fillMaxWidth()
                                     ) {
-                                        Row(
+                                        PayPalQRCodeView(
+                                            qrContent = paypalLink,
+                                            sizeDp = 170.dp,
                                             modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(14.dp),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
+                                                .clickable { openUrl(paypalLink) }
+                                                .tvFocusable(shape = RoundedCornerShape(12.dp), onDpadCenterClick = { openUrl(paypalLink) })
+                                                .testTag("paypal_qr_code")
+                                        )
+
+                                        Spacer(modifier = Modifier.height(14.dp))
+
+                                        Text(
+                                            text = stringResource(R.string.paypal_instructions),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = ParchmentMuted,
+                                            textAlign = TextAlign.Center
+                                        )
+
+                                        Spacer(modifier = Modifier.height(12.dp))
+
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                                         ) {
-                                            Column(modifier = Modifier.weight(1f)) {
-                                                Text(
-                                                    text = stringResource(tier.titleRes),
-                                                    style = MaterialTheme.typography.titleSmall.copy(
-                                                        fontFamily = FontFamily.Serif,
-                                                        fontWeight = FontWeight.Bold
-                                                    ),
-                                                    color = ParchmentWhite
+                                            OutlinedButton(
+                                                onClick = { copyToClipboard(paypalLink) },
+                                                shape = RoundedCornerShape(10.dp),
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .tvFocusable(shape = RoundedCornerShape(10.dp), onDpadCenterClick = { copyToClipboard(paypalLink) })
+                                                    .testTag("paypal_copy_button")
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.ContentCopy,
+                                                    contentDescription = null,
+                                                    tint = GoldAccent,
+                                                    modifier = Modifier.size(16.dp)
                                                 )
+                                                Spacer(modifier = Modifier.width(6.dp))
                                                 Text(
-                                                    text = stringResource(tier.descRes),
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    color = ParchmentMuted
+                                                    text = stringResource(R.string.copy_paypal_link),
+                                                    style = MaterialTheme.typography.labelMedium,
+                                                    color = GoldAccent
                                                 )
                                             }
 
                                             Button(
-                                                onClick = {
-                                                    onSimulatePlayPurchase()
-                                                    Toast.makeText(
-                                                        context,
-                                                        context.getString(R.string.thank_you_toast),
-                                                        Toast.LENGTH_LONG
-                                                    ).show()
-                                                },
+                                                onClick = { openUrl(paypalLink) },
                                                 colors = ButtonDefaults.buttonColors(
                                                     containerColor = GoldAccent,
                                                     contentColor = GalleryBlack
                                                 ),
-                                                shape = RoundedCornerShape(8.dp)
+                                                shape = RoundedCornerShape(10.dp),
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .tvFocusable(shape = RoundedCornerShape(10.dp), onDpadCenterClick = { openUrl(paypalLink) })
+                                                    .testTag("paypal_open_button")
                                             ) {
+                                                Icon(
+                                                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                                Spacer(modifier = Modifier.width(6.dp))
                                                 Text(
-                                                    text = tier.price,
-                                                    style = MaterialTheme.typography.labelLarge.copy(
+                                                    text = stringResource(R.string.paypal_me),
+                                                    style = MaterialTheme.typography.labelMedium.copy(
                                                         fontWeight = FontWeight.Bold
                                                     )
                                                 )
@@ -343,142 +479,75 @@ fun DonationModalDialog(
                                         }
                                     }
                                 }
-                            }
-                        }
 
-                        1 -> {
-                            // Method 2: PayPal & Live QR Code
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                PayPalQRCodeView(
-                                    qrContent = paypalLink,
-                                    sizeDp = 170.dp
-                                )
-
-                                Spacer(modifier = Modifier.height(14.dp))
-
-                                Text(
-                                    text = stringResource(R.string.paypal_instructions),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = ParchmentMuted,
-                                    textAlign = TextAlign.Center
-                                )
-
-                                Spacer(modifier = Modifier.height(12.dp))
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    OutlinedButton(
-                                        onClick = { copyToClipboard(paypalLink) },
-                                        shape = RoundedCornerShape(10.dp),
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.ContentCopy,
-                                            contentDescription = null,
-                                            tint = GoldAccent,
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        Text(
-                                            text = stringResource(R.string.copy_paypal_link),
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = GoldAccent
-                                        )
-                                    }
-
-                                    Button(
-                                        onClick = { openUrl(paypalLink) },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = GoldAccent,
-                                            contentColor = GalleryBlack
-                                        ),
-                                        shape = RoundedCornerShape(10.dp),
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.OpenInNew,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        Text(
-                                            text = stringResource(R.string.paypal_me),
-                                            style = MaterialTheme.typography.labelMedium.copy(
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        2 -> {
-                            // Method 3: Ko-fi Tip Jar
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .border(1.dp, OchreDark.copy(alpha = 0.5f), RoundedCornerShape(16.dp)),
-                                    colors = CardDefaults.cardColors(containerColor = SurfaceContainerDark),
-                                    shape = RoundedCornerShape(16.dp)
-                                ) {
+                                2 -> {
+                                    // Method 3: Ko-fi Tip Jar
                                     Column(
-                                        modifier = Modifier.padding(20.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier.fillMaxWidth()
                                     ) {
-                                        Icon(
-                                            imageVector = Icons.Default.CardGiftcard,
-                                            contentDescription = null,
-                                            tint = GoldAccent,
-                                            modifier = Modifier.size(40.dp)
-                                        )
-                                        Spacer(modifier = Modifier.height(10.dp))
-                                        Text(
-                                            text = stringResource(R.string.kofi_title),
-                                            style = MaterialTheme.typography.titleMedium.copy(
-                                                fontFamily = FontFamily.Serif,
-                                                fontWeight = FontWeight.Bold
-                                            ),
-                                            color = ParchmentWhite
-                                        )
-                                        Spacer(modifier = Modifier.height(6.dp))
-                                        Text(
-                                            text = stringResource(R.string.kofi_description),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = ParchmentMuted,
-                                            textAlign = TextAlign.Center
-                                        )
-                                        Spacer(modifier = Modifier.height(16.dp))
-
-                                        Button(
-                                            onClick = { openUrl(kofiLink) },
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = GoldAccent,
-                                                contentColor = GalleryBlack
-                                            ),
-                                            shape = RoundedCornerShape(12.dp),
-                                            modifier = Modifier.fillMaxWidth()
+                                        Card(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .border(1.dp, OchreDark.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
+                                                .testTag("kofi_card"),
+                                            colors = CardDefaults.cardColors(containerColor = SurfaceContainerDark),
+                                            shape = RoundedCornerShape(16.dp)
                                         ) {
-                                            Icon(
-                                                imageVector = Icons.Default.OpenInNew,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(
-                                                text = stringResource(R.string.open_kofi),
-                                                style = MaterialTheme.typography.labelLarge.copy(
-                                                    fontWeight = FontWeight.Bold
+                                            Column(
+                                                modifier = Modifier.padding(20.dp),
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.CardGiftcard,
+                                                    contentDescription = null,
+                                                    tint = GoldAccent,
+                                                    modifier = Modifier.size(40.dp)
                                                 )
-                                            )
+                                                Spacer(modifier = Modifier.height(10.dp))
+                                                Text(
+                                                    text = stringResource(R.string.kofi_title),
+                                                    style = MaterialTheme.typography.titleMedium.copy(
+                                                        fontFamily = FontFamily.Serif,
+                                                        fontWeight = FontWeight.Bold
+                                                    ),
+                                                    color = ParchmentWhite
+                                                )
+                                                Spacer(modifier = Modifier.height(6.dp))
+                                                Text(
+                                                    text = stringResource(R.string.kofi_description),
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = ParchmentMuted,
+                                                    textAlign = TextAlign.Center
+                                                )
+                                                Spacer(modifier = Modifier.height(16.dp))
+
+                                                Button(
+                                                    onClick = { openUrl(kofiLink) },
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        containerColor = GoldAccent,
+                                                        contentColor = GalleryBlack
+                                                    ),
+                                                    shape = RoundedCornerShape(12.dp),
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .tvFocusable(shape = RoundedCornerShape(12.dp), onDpadCenterClick = { openUrl(kofiLink) })
+                                                        .testTag("kofi_open_button")
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                                                        contentDescription = null,
+                                                        modifier = Modifier.size(18.dp)
+                                                    )
+                                                    Spacer(modifier = Modifier.width(8.dp))
+                                                    Text(
+                                                        text = stringResource(R.string.open_kofi),
+                                                        style = MaterialTheme.typography.labelLarge.copy(
+                                                            fontWeight = FontWeight.Bold
+                                                        )
+                                                    )
+                                                }
+                                            }
                                         }
                                     }
                                 }
