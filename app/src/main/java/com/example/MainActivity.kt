@@ -394,6 +394,7 @@ fun DailyCuratorApp() {
                                         onTriggerDownload(artwork)
                                     },
                                     onOpenAmbientMode = {
+                                        previousScreenBeforeDetail = CuratorScreen.DETAIL
                                         viewModel.navigateTo(CuratorScreen.AMBIENT_TV)
                                     }
                                 )
