@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,14 +19,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Collections
+import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,18 +47,15 @@ import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.data.model.Artwork
 import com.example.ui.components.ArtworkCard
+import com.example.ui.components.donation.SupporterBadge
+import com.example.ui.components.tv.rememberIsTelevision
+import com.example.ui.components.tv.tvFocusable
 import com.example.ui.theme.GalleryBlack
 import com.example.ui.theme.GoldAccent
 import com.example.ui.theme.OutfitFontFamily
 import com.example.ui.theme.ParchmentMuted
 import com.example.ui.theme.ParchmentWhite
 import com.example.ui.theme.PlayfairFontFamily
-
-import com.example.ui.components.donation.SupporterBadge
-import androidx.compose.material.icons.filled.VolunteerActivism
-import androidx.compose.material3.IconButton
-import androidx.compose.foundation.shape.CircleShape
-import com.example.ui.components.tv.tvFocusable
 
 @Composable
 fun FavoritesScreen(
@@ -69,14 +73,22 @@ fun FavoritesScreen(
     val salonEmptySubtitleText = stringResource(R.string.salon_empty_subtitle)
     val exploreMasterworksText = stringResource(R.string.explore_masterworks)
 
-    Column(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
             .background(GalleryBlack)
-            .padding(horizontal = 16.dp)
             .testTag("favorites_screen")
     ) {
-        Spacer(modifier = Modifier.height(14.dp))
+        val isTv = rememberIsTelevision()
+        val isWide = isTv || maxWidth > 650.dp
+        val horizontalPadding = if (isWide) 28.dp else 16.dp
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = horizontalPadding)
+        ) {
+            Spacer(modifier = Modifier.height(14.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -195,6 +207,26 @@ fun FavoritesScreen(
                     }
                 }
             }
+        } else if (isWide) {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 280.dp),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 100.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(
+                    items = favorites,
+                    key = { it.id }
+                ) { artwork ->
+                    ArtworkCard(
+                        artwork = artwork,
+                        isFavorite = true,
+                        onSelect = { onSelectArtwork(artwork) },
+                        onToggleFavorite = { onToggleFavorite(artwork) }
+                    )
+                }
+            }
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -214,6 +246,7 @@ fun FavoritesScreen(
                     )
                 }
             }
+        }
         }
     }
 }

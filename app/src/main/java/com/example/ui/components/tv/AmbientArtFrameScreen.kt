@@ -46,6 +46,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
@@ -100,10 +102,10 @@ fun AmbientArtFrameScreen(
         }
     }
 
-    // Auto-hide overlay plaque after 6 seconds of inactivity
-    LaunchedEffect(currentIndex, showPlaque) {
-        if (showPlaque) {
-            delay(6_000L)
+    // Auto-hide overlay plaque after inactivity, but only while slideshow is playing
+    LaunchedEffect(currentIndex, showPlaque, isPlaying) {
+        if (showPlaque && isPlaying) {
+            delay(10_000L)
             showPlaque = false
         }
     }
@@ -118,15 +120,20 @@ fun AmbientArtFrameScreen(
         showPlaque = true
     }
 
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        delay(150L)
+        try {
+            focusRequester.requestFocus()
+        } catch (_: Exception) {}
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(GalleryBlack)
             .testTag("ambient_art_frame_screen")
-            .focusable()
-            .clickable {
-                showPlaque = !showPlaque
-            }
+            .focusRequester(focusRequester)
             .onKeyEvent { keyEvent ->
                 if (keyEvent.type == KeyEventType.KeyDown) {
                     when (keyEvent.key) {
@@ -156,6 +163,10 @@ fun AmbientArtFrameScreen(
                 } else {
                     false
                 }
+            }
+            .focusable()
+            .clickable {
+                showPlaque = !showPlaque
             }
     ) {
         // Fullscreen Canvas Artwork with smooth Crossfade

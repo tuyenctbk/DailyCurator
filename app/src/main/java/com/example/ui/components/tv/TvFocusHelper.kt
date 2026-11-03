@@ -37,8 +37,9 @@ fun isTelevisionDevice(context: Context): Boolean {
     val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as? UiModeManager
     val isTvMode = uiModeManager?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
     val hasLeanbackFeature = context.packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
+    val hasTvHardware = context.packageManager.hasSystemFeature("android.hardware.type.television")
     val hasNoTouchscreen = !context.packageManager.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)
-    return isTvMode || hasLeanbackFeature || hasNoTouchscreen
+    return isTvMode || hasLeanbackFeature || hasTvHardware || hasNoTouchscreen
 }
 
 @Composable

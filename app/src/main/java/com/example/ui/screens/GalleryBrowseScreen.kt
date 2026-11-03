@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,6 +47,8 @@ import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.data.model.Artwork
 import com.example.ui.components.ArtworkCard
+import com.example.ui.components.tv.rememberIsTelevision
+import com.example.ui.components.tv.tvFocusable
 import com.example.ui.theme.DividerDark
 import com.example.ui.theme.GalleryBlack
 import com.example.ui.theme.GoldAccent
@@ -51,7 +57,6 @@ import com.example.ui.theme.ParchmentMuted
 import com.example.ui.theme.ParchmentWhite
 import com.example.ui.theme.PlayfairFontFamily
 import com.example.ui.theme.SurfaceDark
-import com.example.ui.components.tv.tvFocusable
 
 @Composable
 fun GalleryBrowseScreen(
@@ -94,14 +99,22 @@ fun GalleryBrowseScreen(
     val noPaintingsSubtitleText = stringResource(R.string.no_paintings_subtitle)
     val resetFiltersText = stringResource(R.string.reset_filters)
 
-    Column(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
             .background(GalleryBlack)
-            .padding(horizontal = 16.dp)
             .testTag("gallery_browse_screen")
     ) {
-        Spacer(modifier = Modifier.height(14.dp))
+        val isTv = rememberIsTelevision()
+        val isWide = isTv || maxWidth > 650.dp
+        val horizontalPadding = if (isWide) 28.dp else 16.dp
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = horizontalPadding)
+        ) {
+            Spacer(modifier = Modifier.height(14.dp))
 
         // Title Header
         Text(
@@ -281,6 +294,26 @@ fun GalleryBrowseScreen(
                     )
                 }
             }
+        } else if (isWide) {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 280.dp),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 100.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(
+                    items = artworks,
+                    key = { it.id }
+                ) { artwork ->
+                    ArtworkCard(
+                        artwork = artwork,
+                        isFavorite = favoriteIds.contains(artwork.id),
+                        onSelect = { onSelectArtwork(artwork) },
+                        onToggleFavorite = { onToggleFavorite(artwork) }
+                    )
+                }
+            }
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -299,6 +332,7 @@ fun GalleryBrowseScreen(
                     )
                 }
             }
+        }
         }
     }
 }

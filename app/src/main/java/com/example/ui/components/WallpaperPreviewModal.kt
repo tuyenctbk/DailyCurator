@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,14 +16,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -50,16 +49,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.R
 import com.example.data.model.Artwork
 import com.example.data.wallpaper.WallpaperTarget
+import com.example.ui.components.tv.rememberIsTelevision
+import com.example.ui.components.tv.tvFocusable
 import com.example.ui.theme.GalleryBlack
 import com.example.ui.theme.GoldAccent
 import com.example.ui.theme.OutfitFontFamily
+import com.example.ui.theme.ParchmentMuted
 import com.example.ui.theme.PlayfairFontFamily
 import com.example.ui.theme.SurfaceContainerDark
 import com.example.ui.theme.SurfaceDark
@@ -76,7 +76,6 @@ fun WallpaperPreviewModal(
     onApply: (WallpaperTarget) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     var selectedTarget by remember { mutableStateOf(WallpaperTarget.BOTH) }
     var previewMode by remember { mutableStateOf(false) } // false = Lock screen preview, true = Home screen preview
 
@@ -95,271 +94,459 @@ fun WallpaperPreviewModal(
     val settingWallpaperText = stringResource(R.string.setting_wallpaper)
     val setAsWallpaperText = stringResource(R.string.set_as_wallpaper_btn)
 
+    val isTv = rememberIsTelevision()
+
     Surface(
         modifier = modifier
             .fillMaxSize()
             .background(GalleryBlack),
         color = GalleryBlack
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 20.dp, vertical = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-                // Top Bar
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val isWide = isTv || maxWidth > 650.dp
+
+            if (isWide) {
+                // ==========================================
+                // WIDESCREEN & ANDROID TV 2-COLUMN LAYOUT
+                // ==========================================
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 32.dp, vertical = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(36.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = wallpaperPreviewText,
-                            style = MaterialTheme.typography.titleLarge,
-                            color = GoldAccent
-                        )
-                        Text(
-                            text = artwork.title,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.7f),
-                            maxLines = 1
-                        )
-                    }
-
-                    IconButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.testTag("close_wallpaper_modal_button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = closePreviewText,
-                            tint = Color.White
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Interactive Phone Mockup Frame
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(vertical = 4.dp),
-                    contentAlignment = Alignment.Center
-                ) {
+                    // Left Column: Interactive Phone Mockup Frame
                     Box(
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .aspectRatio(9f / 18.5f, matchHeightConstraintsFirst = true)
-                            .clip(RoundedCornerShape(26.dp))
-                            .border(3.dp, Color(0xFF3E3935), RoundedCornerShape(26.dp))
-                            .background(Color.Black)
-                            .clickable { previewMode = !previewMode },
+                            .weight(1f)
+                            .fillMaxHeight(),
                         contentAlignment = Alignment.Center
                     ) {
-                    // Artwork Background with Crossfade
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(artwork.bestDisplayImage)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = artwork.title,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                        PhoneMockupFrame(
+                            artwork = artwork,
+                            previewMode = previewMode,
+                            currentTime = currentTime,
+                            currentDate = currentDate,
+                            lockScreenText = lockScreenText,
+                            homeScreenText = homeScreenText,
+                            onTogglePreviewMode = { previewMode = !previewMode }
+                        )
+                    }
 
-                    // Subtle Vignette Overlay for readable mock lock screen
-                    Box(
+                    // Right Column: Curatorial Title & Controls
+                    Column(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                Brush.verticalGradient(
-                                    listOf(
-                                        Color.Black.copy(alpha = 0.45f),
-                                        Color.Transparent,
-                                        Color.Black.copy(alpha = 0.55f)
-                                    )
-                                )
-                            )
-                    )
-
-                    if (!previewMode) {
-                        // Mock Lock Screen UI
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(top = 36.dp, bottom = 20.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.SpaceBetween
+                            .weight(1.3f)
+                            .fillMaxHeight(),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = currentTime,
-                                    fontSize = 52.sp,
-                                    fontFamily = OutfitFontFamily,
-                                    fontWeight = FontWeight.Light,
-                                    color = Color.White,
-                                    letterSpacing = (-1).sp
+                                    text = wallpaperPreviewText,
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    color = GoldAccent
                                 )
+                                Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = currentDate,
-                                    fontSize = 12.sp,
-                                    fontFamily = OutfitFontFamily,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color.White.copy(alpha = 0.85f)
-                                )
-                            }
-
-                            // Curator Watermark on Lock screen
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(Color.Black.copy(alpha = 0.35f))
-                                    .padding(horizontal = 12.dp, vertical = 4.dp)
-                            ) {
-                                Text(
-                                    text = artwork.title.ifBlank { stringResource(R.string.untitled) },
-                                    fontFamily = PlayfairFontFamily,
-                                    fontSize = 11.sp,
+                                    text = artwork.title,
+                                    style = MaterialTheme.typography.titleMedium,
                                     color = Color.White,
-                                    fontWeight = FontWeight.Medium,
-                                    textAlign = TextAlign.Center,
                                     maxLines = 1
                                 )
                                 Text(
-                                    text = artwork.artistDisplayName.ifBlank { stringResource(R.string.unknown_artist) },
-                                    fontFamily = OutfitFontFamily,
-                                    fontSize = 9.sp,
-                                    color = GoldAccent,
-                                    textAlign = TextAlign.Center
+                                    text = artwork.artistDisplayName,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = ParchmentMuted,
+                                    maxLines = 1
+                                )
+                            }
+
+                            IconButton(
+                                onClick = onDismiss,
+                                modifier = Modifier
+                                    .testTag("close_wallpaper_modal_button")
+                                    .tvFocusable(shape = CircleShape, onDpadCenterClick = onDismiss)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = closePreviewText,
+                                    tint = Color.White
                                 )
                             }
                         }
-                    } else {
-                        // Mock Home Screen Icons
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(top = 40.dp, bottom = 24.dp, start = 16.dp, end = 16.dp),
-                            verticalArrangement = Arrangement.Bottom,
-                            horizontalAlignment = Alignment.CenterHorizontally
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Target Selector Buttons (Lock, Home, Both)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            // Bottom Dock
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(18.dp))
-                                    .background(Color.White.copy(alpha = 0.25f))
-                                    .padding(vertical = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                repeat(4) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(32.dp)
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .background(Color.White.copy(alpha = 0.8f))
-                                    )
+                            TargetChip(
+                                label = lockScreenText,
+                                isSelected = selectedTarget == WallpaperTarget.LOCK_SCREEN,
+                                modifier = Modifier.weight(1f),
+                                onClick = {
+                                    selectedTarget = WallpaperTarget.LOCK_SCREEN
+                                    previewMode = false
                                 }
+                            )
+                            TargetChip(
+                                label = homeScreenText,
+                                isSelected = selectedTarget == WallpaperTarget.HOME_SCREEN,
+                                modifier = Modifier.weight(1f),
+                                onClick = {
+                                    selectedTarget = WallpaperTarget.HOME_SCREEN
+                                    previewMode = true
+                                }
+                            )
+                            TargetChip(
+                                label = bothScreensText,
+                                isSelected = selectedTarget == WallpaperTarget.BOTH,
+                                modifier = Modifier.weight(1f),
+                                onClick = { selectedTarget = WallpaperTarget.BOTH }
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Confirm Button
+                        Button(
+                            onClick = { onApply(selectedTarget) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(52.dp)
+                                .tvFocusable(shape = RoundedCornerShape(14.dp), onDpadCenterClick = { onApply(selectedTarget) })
+                                .testTag("confirm_set_wallpaper_button"),
+                            enabled = wallpaperState !is WallpaperActionState.InProgress,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = GoldAccent,
+                                contentColor = GalleryBlack
+                            ),
+                            shape = RoundedCornerShape(14.dp)
+                        ) {
+                            if (wallpaperState is WallpaperActionState.InProgress) {
+                                CircularProgressIndicator(
+                                    color = GalleryBlack,
+                                    modifier = Modifier.size(22.dp),
+                                    strokeWidth = 2.dp
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(settingWallpaperText, fontWeight = FontWeight.Bold)
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Wallpaper,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = setAsWallpaperText,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
                         }
                     }
+                }
+            } else {
+                // ==========================================
+                // MOBILE PORTRAIT VERTICAL LAYOUT
+                // ==========================================
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp, vertical = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Top Bar
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = wallpaperPreviewText,
+                                style = MaterialTheme.typography.titleLarge,
+                                color = GoldAccent
+                            )
+                            Text(
+                                text = artwork.title,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.White.copy(alpha = 0.7f),
+                                maxLines = 1
+                            )
+                        }
 
-                    // Mode Badge inside mockup
+                        IconButton(
+                            onClick = onDismiss,
+                            modifier = Modifier
+                                .testTag("close_wallpaper_modal_button")
+                                .tvFocusable(shape = CircleShape, onDpadCenterClick = onDismiss)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = closePreviewText,
+                                tint = Color.White
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Interactive Phone Mockup Frame
                     Box(
                         modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(top = 10.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(Color.Black.copy(alpha = 0.6f))
-                            .padding(horizontal = 10.dp, vertical = 3.dp)
+                            .weight(1f)
+                            .padding(vertical = 4.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = if (!previewMode) lockScreenText else homeScreenText,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = GoldAccent,
-                            fontSize = 10.sp
+                        PhoneMockupFrame(
+                            artwork = artwork,
+                            previewMode = previewMode,
+                            currentTime = currentTime,
+                            currentDate = currentDate,
+                            lockScreenText = lockScreenText,
+                            homeScreenText = homeScreenText,
+                            onTogglePreviewMode = { previewMode = !previewMode }
                         )
                     }
-                }
-            }
 
-            Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
-            // Target Selector Buttons (Lock, Home, Both)
-            Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    TargetChip(
-                        label = lockScreenText,
-                        isSelected = selectedTarget == WallpaperTarget.LOCK_SCREEN,
-                        modifier = Modifier.weight(1f),
-                        onClick = {
-                            selectedTarget = WallpaperTarget.LOCK_SCREEN
-                            previewMode = false
+                    // Target Selector Buttons (Lock, Home, Both)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        TargetChip(
+                            label = lockScreenText,
+                            isSelected = selectedTarget == WallpaperTarget.LOCK_SCREEN,
+                            modifier = Modifier.weight(1f),
+                            onClick = {
+                                selectedTarget = WallpaperTarget.LOCK_SCREEN
+                                previewMode = false
+                            }
+                        )
+                        TargetChip(
+                            label = homeScreenText,
+                            isSelected = selectedTarget == WallpaperTarget.HOME_SCREEN,
+                            modifier = Modifier.weight(1f),
+                            onClick = {
+                                selectedTarget = WallpaperTarget.HOME_SCREEN
+                                previewMode = true
+                            }
+                        )
+                        TargetChip(
+                            label = bothScreensText,
+                            isSelected = selectedTarget == WallpaperTarget.BOTH,
+                            modifier = Modifier.weight(1f),
+                            onClick = { selectedTarget = WallpaperTarget.BOTH }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Confirm Button
+                    Button(
+                        onClick = { onApply(selectedTarget) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                            .tvFocusable(shape = RoundedCornerShape(14.dp), onDpadCenterClick = { onApply(selectedTarget) })
+                            .testTag("confirm_set_wallpaper_button"),
+                        enabled = wallpaperState !is WallpaperActionState.InProgress,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = GoldAccent,
+                            contentColor = GalleryBlack
+                        ),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        if (wallpaperState is WallpaperActionState.InProgress) {
+                            CircularProgressIndicator(
+                                color = GalleryBlack,
+                                modifier = Modifier.size(22.dp),
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(settingWallpaperText, fontWeight = FontWeight.Bold)
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Wallpaper,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = setAsWallpaperText,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
-                    )
-                    TargetChip(
-                        label = homeScreenText,
-                        isSelected = selectedTarget == WallpaperTarget.HOME_SCREEN,
-                        modifier = Modifier.weight(1f),
-                        onClick = {
-                            selectedTarget = WallpaperTarget.HOME_SCREEN
-                            previewMode = true
-                        }
-                    )
-                    TargetChip(
-                        label = bothScreensText,
-                        isSelected = selectedTarget == WallpaperTarget.BOTH,
-                        modifier = Modifier.weight(1f),
-                        onClick = { selectedTarget = WallpaperTarget.BOTH }
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Confirm Button
-                Button(
-                    onClick = { onApply(selectedTarget) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .testTag("confirm_set_wallpaper_button"),
-                    enabled = wallpaperState !is WallpaperActionState.InProgress,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = GoldAccent,
-                        contentColor = GalleryBlack
-                    ),
-                    shape = RoundedCornerShape(14.dp)
-                ) {
-                    if (wallpaperState is WallpaperActionState.InProgress) {
-                        CircularProgressIndicator(
-                            color = GalleryBlack,
-                            modifier = Modifier.size(22.dp),
-                            strokeWidth = 2.dp
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(settingWallpaperText, fontWeight = FontWeight.Bold)
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Wallpaper,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = setAsWallpaperText,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun PhoneMockupFrame(
+    artwork: Artwork,
+    previewMode: Boolean,
+    currentTime: String,
+    currentDate: String,
+    lockScreenText: String,
+    homeScreenText: String,
+    onTogglePreviewMode: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    Box(
+        modifier = modifier
+            .fillMaxHeight()
+            .aspectRatio(9f / 18.5f, matchHeightConstraintsFirst = true)
+            .clip(RoundedCornerShape(26.dp))
+            .border(3.dp, Color(0xFF3E3935), RoundedCornerShape(26.dp))
+            .background(Color.Black)
+            .clickable(onClick = onTogglePreviewMode),
+        contentAlignment = Alignment.Center
+    ) {
+        // Artwork Background with Crossfade
+        AsyncImage(
+            model = ImageRequest.Builder(context)
+                .data(artwork.bestDisplayImage)
+                .crossfade(true)
+                .build(),
+            contentDescription = artwork.title,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // Subtle Vignette Overlay for readable mock lock screen
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color.Black.copy(alpha = 0.45f),
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.55f)
+                        )
+                    )
+                )
+        )
+
+        if (!previewMode) {
+            // Mock Lock Screen UI
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 36.dp, bottom = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = currentTime,
+                        fontSize = 52.sp,
+                        fontFamily = OutfitFontFamily,
+                        fontWeight = FontWeight.Light,
+                        color = Color.White,
+                        letterSpacing = (-1).sp
+                    )
+                    Text(
+                        text = currentDate,
+                        fontSize = 12.sp,
+                        fontFamily = OutfitFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White.copy(alpha = 0.85f)
+                    )
+                }
+
+                // Curator Watermark on Lock screen
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.Black.copy(alpha = 0.35f))
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = artwork.title.ifBlank { stringResource(R.string.untitled) },
+                        fontFamily = PlayfairFontFamily,
+                        fontSize = 11.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1
+                    )
+                    Text(
+                        text = artwork.artistDisplayName.ifBlank { stringResource(R.string.unknown_artist) },
+                        fontFamily = OutfitFontFamily,
+                        fontSize = 9.sp,
+                        color = GoldAccent,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            // Mock Home Screen Icons
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 40.dp, bottom = 24.dp, start = 16.dp, end = 16.dp),
+                verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Bottom Dock
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(Color.White.copy(alpha = 0.25f))
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    repeat(4) {
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color.White.copy(alpha = 0.8f))
+                        )
+                    }
+                }
+            }
+        }
+
+        // Mode Badge inside mockup
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 10.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color.Black.copy(alpha = 0.6f))
+                .padding(horizontal = 10.dp, vertical = 3.dp)
+        ) {
+            Text(
+                text = if (!previewMode) lockScreenText else homeScreenText,
+                style = MaterialTheme.typography.labelSmall,
+                color = GoldAccent,
+                fontSize = 10.sp
+            )
+        }
+    }
+}
 
 @Composable
 private fun TargetChip(
@@ -370,6 +557,7 @@ private fun TargetChip(
 ) {
     Box(
         modifier = modifier
+            .tvFocusable(shape = RoundedCornerShape(12.dp), onDpadCenterClick = onClick)
             .clip(RoundedCornerShape(12.dp))
             .background(if (isSelected) SurfaceContainerDark else SurfaceDark)
             .border(
