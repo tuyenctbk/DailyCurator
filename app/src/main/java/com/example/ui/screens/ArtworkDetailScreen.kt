@@ -393,6 +393,9 @@ fun ArtworkDetailScreen(
                         ProvenanceRow(sourceText, localizedSource)
                     }
                 }
+
+                // Generous bottom spacer so content never gets obscured behind sticky action bar
+                Spacer(modifier = Modifier.height(110.dp))
             }
         }
 

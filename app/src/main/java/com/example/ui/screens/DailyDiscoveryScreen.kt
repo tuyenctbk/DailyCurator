@@ -523,7 +523,8 @@ fun DailyDiscoveryScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(40.dp))
+        // Generous breathing room above floating CuratorBottomBar
+        Spacer(modifier = Modifier.height(96.dp))
     }
 }
 

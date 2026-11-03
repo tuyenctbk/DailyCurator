@@ -74,7 +74,7 @@ object CuratedMasterpieces {
             primaryImage = "https://images.metmuseum.org/CRDImages/ep/original/DP145920.jpg",
             primaryImageSmall = "https://images.metmuseum.org/CRDImages/ep/web-large/DP145920.jpg",
             sourceMuseum = "The Metropolitan Museum of Art",
-            curatorNote = "Commissioned by Sicilian nobleman Antonio Ruffo, this poignant painting depicts the ancient philosopher in opulent 17th-century garments, resting a reflective hand on a bust of blind epic poet Homer while weighing worldly worldly honor against spiritual immortality.",
+            curatorNote = "Commissioned by Sicilian nobleman Antonio Ruffo, this poignant painting depicts the ancient philosopher in opulent 17th-century garments, resting a reflective hand on a bust of blind epic poet Homer while weighing worldly honor against spiritual immortality.",
             isDailyPick = false
         ),
         Artwork(
