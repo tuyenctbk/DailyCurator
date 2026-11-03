@@ -284,6 +284,7 @@ class EngagementManager private constructor(context: Context) {
         } catch (_: Exception) {}
     }
 
+    @Suppress("DEPRECATION")
     fun launchFlexibleUpdate(activity: Activity, requestCode: Int = 1002) {
         try {
             val appUpdateManager = AppUpdateManagerFactory.create(activity)

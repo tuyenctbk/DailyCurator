@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material.icons.outlined.BookmarkBorder
@@ -98,6 +99,7 @@ fun ArtworkDetailScreen(
     onToggleFavorite: () -> Unit,
     onOpenWallpaperModal: () -> Unit,
     onDownload: () -> Unit,
+    onOpenAmbientMode: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -309,6 +311,25 @@ fun ArtworkDetailScreen(
                         }
 
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            onOpenAmbientMode?.let { openAmbient ->
+                                IconButton(
+                                    onClick = openAmbient,
+                                    modifier = Modifier
+                                        .size(42.dp)
+                                        .tvFocusable(shape = CircleShape, onDpadCenterClick = openAmbient)
+                                        .clip(CircleShape)
+                                        .background(SurfaceDark)
+                                        .border(1.dp, GoldAccent.copy(alpha = 0.5f), CircleShape)
+                                        .testTag("detail_ambient_mode_button")
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Tv,
+                                        contentDescription = stringResource(R.string.ambient_art_frame),
+                                        tint = GoldAccent
+                                    )
+                                }
+                            }
+
                             IconButton(
                                 onClick = onShare,
                                 modifier = Modifier
@@ -757,6 +778,25 @@ fun ArtworkDetailScreen(
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    onOpenAmbientMode?.let { openAmbient ->
+                        IconButton(
+                            onClick = openAmbient,
+                            modifier = Modifier
+                                .size(42.dp)
+                                .tvFocusable(shape = CircleShape, onDpadCenterClick = openAmbient)
+                                .clip(CircleShape)
+                                .background(Color.Black.copy(alpha = 0.6f))
+                                .border(1.dp, GoldAccent.copy(alpha = 0.5f), CircleShape)
+                                .testTag("detail_ambient_mode_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Tv,
+                                contentDescription = stringResource(R.string.ambient_art_frame),
+                                tint = GoldAccent
+                            )
+                        }
+                    }
+
                     IconButton(
                         onClick = onShare,
                         modifier = Modifier

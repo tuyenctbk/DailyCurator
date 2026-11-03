@@ -392,21 +392,27 @@ fun DailyCuratorApp() {
                                     },
                                     onDownload = {
                                         onTriggerDownload(artwork)
+                                    },
+                                    onOpenAmbientMode = {
+                                        viewModel.navigateTo(CuratorScreen.AMBIENT_TV)
                                     }
                                 )
                             }
                         }
 
                         CuratorScreen.AMBIENT_TV -> {
-                            val ambientArtworks = if (favorites.isNotEmpty()) {
+                            val ambientArtworks = if (favorites.size >= 3) {
                                 favorites
                             } else if (galleryArtworks.isNotEmpty()) {
                                 galleryArtworks
                             } else {
                                 listOf(dailyArtwork)
                             }
+                            val targetId = selectedArtwork?.id ?: dailyArtwork.id
+                            val initialIndex = ambientArtworks.indexOfFirst { it.id == targetId }.coerceAtLeast(0)
                             AmbientArtFrameScreen(
                                 artworks = ambientArtworks,
+                                initialArtworkIndex = initialIndex,
                                 onExit = {
                                     viewModel.navigateTo(previousScreenBeforeDetail)
                                 }

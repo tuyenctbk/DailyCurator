@@ -166,3 +166,10 @@ dependencies {
   "ksp"(libs.androidx.room.compiler)
   "ksp"(libs.moshi.kotlin.codegen)
 }
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+  compilerOptions {
+    freeCompilerArgs.add("-Xannotation-default-target=param-property")
+  }
+}
+
