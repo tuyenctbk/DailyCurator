@@ -351,6 +351,10 @@ fun DailyCuratorApp() {
                                 },
                                 onToggleFavorite = { artwork ->
                                     viewModel.toggleFavorite(artwork)
+                                },
+                                onOpenAmbientMode = {
+                                    previousScreenBeforeDetail = CuratorScreen.GALLERY
+                                    viewModel.navigateTo(CuratorScreen.AMBIENT_TV)
                                 }
                             )
                         }
@@ -371,6 +375,10 @@ fun DailyCuratorApp() {
                                 },
                                 onOpenDonationModal = {
                                     viewModel.openDonationModal()
+                                },
+                                onOpenAmbientMode = {
+                                    previousScreenBeforeDetail = CuratorScreen.FAVORITES
+                                    viewModel.navigateTo(CuratorScreen.AMBIENT_TV)
                                 }
                             )
                         }

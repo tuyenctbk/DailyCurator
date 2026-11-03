@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -28,6 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Collections
+import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -38,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -56,6 +59,7 @@ import com.example.ui.theme.OutfitFontFamily
 import com.example.ui.theme.ParchmentMuted
 import com.example.ui.theme.ParchmentWhite
 import com.example.ui.theme.PlayfairFontFamily
+import com.example.ui.theme.SurfaceDark
 
 @Composable
 fun FavoritesScreen(
@@ -65,6 +69,7 @@ fun FavoritesScreen(
     onToggleFavorite: (Artwork) -> Unit,
     onExploreArchive: () -> Unit,
     onOpenDonationModal: () -> Unit,
+    onOpenAmbientMode: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val myPrivateSalonText = stringResource(R.string.my_private_salon)
@@ -108,7 +113,30 @@ fun FavoritesScreen(
                 )
             }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                onOpenAmbientMode?.let { openAmbient ->
+                    if (favorites.isNotEmpty()) {
+                        IconButton(
+                            onClick = openAmbient,
+                            modifier = Modifier
+                                .size(36.dp)
+                                .tvFocusable(shape = CircleShape, onDpadCenterClick = openAmbient)
+                                .clip(CircleShape)
+                                .background(SurfaceDark)
+                                .border(1.dp, GoldAccent.copy(alpha = 0.5f), CircleShape)
+                                .testTag("salon_ambient_mode_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Tv,
+                                contentDescription = stringResource(R.string.ambient_art_frame),
+                                tint = GoldAccent
+                            )
+                        }
+                    }
+                }
                 if (isSupporter) {
                     SupporterBadge()
                 } else {

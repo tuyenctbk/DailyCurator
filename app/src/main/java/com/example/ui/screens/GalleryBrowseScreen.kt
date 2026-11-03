@@ -17,16 +17,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.background
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -71,6 +74,7 @@ fun GalleryBrowseScreen(
     onEraSelected: (String) -> Unit,
     onSelectArtwork: (Artwork) -> Unit,
     onToggleFavorite: (Artwork) -> Unit,
+    onOpenAmbientMode: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val movements = listOf(
@@ -117,16 +121,42 @@ fun GalleryBrowseScreen(
             Spacer(modifier = Modifier.height(14.dp))
 
         // Title Header
-        Text(
-            text = fineArtArchiveText,
-            style = MaterialTheme.typography.displayMedium,
-            color = ParchmentWhite
-        )
-        Text(
-            text = archiveSubtitleText,
-            style = MaterialTheme.typography.bodyMedium,
-            color = ParchmentMuted
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = fineArtArchiveText,
+                    style = MaterialTheme.typography.displayMedium,
+                    color = ParchmentWhite
+                )
+                Text(
+                    text = archiveSubtitleText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ParchmentMuted
+                )
+            }
+            onOpenAmbientMode?.let { openAmbient ->
+                IconButton(
+                    onClick = openAmbient,
+                    modifier = Modifier
+                        .size(38.dp)
+                        .tvFocusable(shape = CircleShape, onDpadCenterClick = openAmbient)
+                        .clip(CircleShape)
+                        .background(SurfaceDark)
+                        .border(1.dp, GoldAccent.copy(alpha = 0.5f), CircleShape)
+                        .testTag("gallery_ambient_mode_button")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Tv,
+                        contentDescription = stringResource(R.string.ambient_art_frame),
+                        tint = GoldAccent
+                    )
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(14.dp))
 
